@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram-Style Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --telegram-blue: #0088cc;
+            --telegram-blue-light: #5eb3ef;
+            --telegram-blue-dark: #006da3;
+            --telegram-bg: #f5f5f5;
+            --telegram-bg-dark: #18222d;
+            --telegram-surface: #ffffff;
+            --telegram-surface-dark: #1e2c3a;
+            --telegram-text: #000000;
+            --telegram-text-secondary: #707579;
+            --telegram-text-dark: #ffffff;
+            --telegram-text-secondary-dark: #8e9ba8;
+            --telegram-border: #e6e6e6;
+            --telegram-border-dark: #2b3b4e;
+            --telegram-user-msg: #e3f2fd;
+            --telegram-user-msg-dark: #005999;
+            --telegram-bot-msg: #ffffff;
+            --telegram-bot-msg-dark: #1e2c3a;
+            --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
+            --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.2);
+            --radius-small: 8px;
+            --radius-medium: 12px;
+            --radius-large: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--telegram-bg);
+            color: var(--telegram-text);
+            transition: background-color 0.3s ease;
+        }
+
+        body.dark-theme {
+            background-color: var(--telegram-bg-dark);
+            color: var(--telegram-text-dark);
+        }
+
+        /* Floating Chat Button */
+        #chatbot-circle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--telegram-blue), var(--telegram-blue-light));
+            border-radius: 50%;
+            box-shadow: var(--shadow-heavy);
+            cursor: pointer;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            user-select: none;
+        }
+
+        #chatbot-circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        #chatbot-circle:active {
+            transform: scale(1.05);
+        }
+
+        #chatbot-circle.pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 136, 204, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(0, 136, 204, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 136, 204, 0);
+            }
+        }
+
+        /* Chat Page Modal */
+        #chatbot-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #chatbot-page.active {
+            opacity: 1;
+        }
+
+        #chatbot-content {
+            width: 90%;
+            max-width: 400px;
+            height: 80%;
+            max-height: 700px;
+            background: var(--telegram-surface);
+            border-radius: var(--radius-large);
+            overflow: hidden;
+            box-shadow: var(--shadow-heavy);
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        body.dark-theme #chatbot-content {
+            background: var(--telegram-surface-dark);
+        }
+
+        #chatbot-page.active #chatbot-content {
+            transform: scale(1);
+        }
+
+        /* Header */
+        .chatbot-header {
+            background: var(--telegram-blue);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-light);
+        }
+
+        .chatbot-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chatbot-header .status {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Chat Area */
+        #chatbox {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--telegram-bg);
+        }
+
+        body.dark-theme #chatbox {
+            background: var(--telegram-bg-dark);
+        }
+
+        .message {
+            padding: 10px 14px;
+            border-radius: var(--radius-medium);
+            max-width: 85%;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-out;
+            line-height: 1.4;
+            box-shadow: var(--shadow-light);
+            position: relative;
+        }
+
+        .user {
+            background: var(--telegram-user-msg);
+            align-self: flex-end;
+            border-bottom-right-radius: var(--radius-small);
+        }
+
+        body.dark-theme .user {
+            background: var(--telegram-user-msg-dark);
+            color: white;
+        }
+
+        .bot {
+            background: var(--telegram-bot-msg);
+            align-self: flex-start;
+            border-bottom-left-radius: var(--radius-small);
+        }
+
+        body.dark-theme .bot {
+            background: var(--telegram-bot-msg-dark);
+            color: var(--telegram-text-dark);
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        /* Input Area */
+        .input-container {
+            padding: 16px;
+            background: var(--telegram-surface);
+            border-top: 1px solid var(--telegram-border);
+        }
+
+        body.dark-theme .input-container {
+            background: var(--telegram-surface-dark);
+            border-top: 1px solid var(--telegram-border-dark);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        #message {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--telegram-border);
+            border-radius: 24px;
+            font-size: 14px;
+            outline: none;
+            background: var(--telegram-bg);
+            transition: border 0.3s, box-shadow 0.3s;
+            resize: none;
+            max-height: 120px;
+            min-height: 44px;
+        }
+
+        body.dark-theme #message {
+            background: var(--telegram-bg-dark);
+            border: 1px solid var(--telegram-border-dark);
+            color: var(--telegram-text-dark);
+        }
+
+        #message:focus {
+            border-color: var(--telegram-blue);
+            box-shadow: 0 0 0 2px rgba(0, 136, 204, 0.2);
+        }
+
+        #send-btn {
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            border-radius: 50%;
+            background: var(--telegram-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        #send-btn:hover {
+            background: var(--telegram-blue-dark);
+            transform: translateY(-2px);
+        }
+
+        #send-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--telegram-bot-msg);
+            border-radius: var(--radius-medium);
+            border-bottom-left-radius: var(--radius-small);
+            align-self: flex-start;
+            box-shadow: var(--shadow-light);
+            margin-bottom: 8px;
+        }
+
+        body.dark-theme .typing-indicator {
+            background: var(--telegram-bot-msg-dark);
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--telegram-text-secondary);
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        body.dark-theme .typing-dot {
+            background: var(--telegram-text-secondary-dark);
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(10px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        /* Scrollbar Styling */
+        #chatbox::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #chatbox::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #chatbox::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        body.dark-theme #chatbox::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            #chatbot-content {
+                width: 95%;
+                height: 90%;
+                max-height: none;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Chat Button -->
+    <div id="chatbot-circle" class="pulse">
+        <i class="fas fa-comment-alt"></i>
+    </div>
+
+    <!-- Chat Page Modal -->
+    <div id="chatbot-page">
+        <div id="chatbot-content">
+            <div class="chatbot-header">
+                <h2>
+                    <i class="fas fa-robot"></i>
+                    CyberOptic Assistant
+                    <span class="status">Online</span>
+                </h2>
+                <div class="header-actions">
+                    <button class="header-btn" id="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="header-btn" id="close-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="chatbox">
+                <div class="message bot">
+                    Hello! I'm your CyberOptic Assistant. How can I help you today?
+                    <div class="message-time">12:00 PM</div>
+                </div>
+            </div>
+            
+            <div class="input-container">
+                <div class="input-row">
+                    <textarea id="message" placeholder="Type a message..." rows="1"></textarea>
+                    <button id="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const chatbotCircle = document.getElementById('chatbot-circle');
+        const chatbotPage = document.getElementById('chatbot-page');
+        const closeBtn = document.getElementById('close-btn');
+        const themeToggle = document.getElementById('theme-toggle');
+        const messageInput = document.getElementById('message');
+        const sendBtn = document.getElementById('send-btn');
+        const chatbox = document.getElementById('chatbox');
+        const body = document.body;
+
+        // State variables
+        let isDragging = false;
+        let offsetX = 0, offsetY = 0;
+        let isDarkTheme = false;
+
+        // Open chatbot
+        chatbotCircle.addEventListener('click', () => {
+            if (!isDragging) {
+                chatbotPage.style.display = 'flex';
+                setTimeout(() => {
+                    chatbotPage.classList.add('active');
+                    messageInput.focus();
+                }, 10);
+            }
+        });
+
+        // Close chatbot
+        closeBtn.addEventListener('click', closeChatbot);
+        
+        // Close when clicking outside the content
+        chatbotPage.addEventListener('click', (e) => {
+            if (e.target === chatbotPage) {
+                closeChatbot();
+            }
+        });
+
+        function closeChatbot() {
+            chatbotPage.classList.remove('active');
+            setTimeout(() => {
+                chatbotPage.style.display = 'none';
+            }, 300);
+        }
+
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            isDarkTheme = !isDarkTheme;
+            if (isDarkTheme) {
+                body.classList.add('dark-theme');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                body.classList.remove('dark-theme');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        });
+
+        // Dragging functionality for the floating button
+        chatbotCircle.addEventListener('mousedown', startDragging);
+        chatbotCircle.addEventListener('touchstart', startDraggingTouch);
+
+        function startDragging(e) {
+            isDragging = false;
+            offsetX = e.clientX - chatbotCircle.getBoundingClientRect().left;
+            offsetY = e.clientY - chatbotCircle.getBoundingClientRect().top;
+            document.addEventListener('mousemove', moveCircle);
+            document.addEventListener('mouseup', stopDragging);
+        }
+
+        function startDraggingTouch(e) {
+            isDragging = false;
+            const touch = e.touches[0];
+            offsetX = touch.clientX - chatbotCircle.getBoundingClientRect().left;
+            offsetY = touch.clientY - chatbotCircle.getBoundingClientRect().top;
+            document.addEventListener('touchmove', moveCircleTouch);
+            document.addEventListener('touchend', stopDragging);
+        }
+
+        function moveCircle(e) {
+            isDragging = true;
+            chatbotCircle.style.left = (e.clientX - offsetX) + 'px';
+            chatbotCircle.style.top = (e.clientY - offsetY) + 'px';
+            chatbotCircle.style.right = 'auto';
+            chatbotCircle.style.bottom = 'auto';
+        }
+
+        function moveCircleTouch(e) {
+            isDragging = true;
+            const touch = e.touches[0];
+            chatbotCircle.style.left = (touch.clientX - offsetX) + 'px';
+            chatbotCircle.style.top = (touch.clientY - offsetY) + 'px';
+            chatbotCircle.style.right = 'auto';
+            chatbotCircle.style.bottom = 'auto';
+        }
+
+        function stopDragging() {
+            document.removeEventListener('mousemove', moveCircle);
+            document.removeEventListener('touchmove', moveCircleTouch);
+            document.removeEventListener('mouseup', stopDragging);
+            document.removeEventListener('touchend', stopDragging);
+            setTimeout(() => (isDragging = false), 100);
+        }
+
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Send message function
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage(message, 'user');
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate bot response after a delay
+            setTimeout(() => {
+                removeTypingIndicator();
+                addMessage(getBotResponse(message), 'bot');
+            }, 1000 + Math.random() * 2000);
+        }
+
+        // Send message on button click
+        sendBtn.addEventListener('click', sendMessage);
+
+        // Send message on Enter key (but allow Shift+Enter for new line)
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Add message to chat
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+            
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            messageDiv.innerHTML = `${text}<div class="message-time">${time}</div>`;
+            
+            chatbox.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.classList.add('typing-indicator');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            chatbox.appendChild(typingDiv);
+            scrollToBottom();
+        }
+
+        // Remove typing indicator
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Scroll to bottom of chat
+        function scrollToBottom() {
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        // Simple bot response logic
+        function getBotResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
+            
+            if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+                return "Hello there! How can I assist you today?";
+            } else if (lowerMessage.includes('how are you')) {
+                return "I'm just a bot, but I'm functioning perfectly! Thanks for asking.";
+            } else if (lowerMessage.includes('product') || lowerMessage.includes('item')) {
+                return "I can help you find products in our catalog. Could you be more specific about what you're looking for?";
+            } else if (lowerMessage.includes('price')) {
+                return "Our pricing varies by product. Could you tell me which product you're interested in?";
+            } else if (lowerMessage.includes('thank')) {
+                return "You're welcome! Is there anything else I can help with?";
+            } else if (lowerMessage.includes('bye') || lowerMessage.includes('goodbye')) {
+                return "Goodbye! Feel free to reach out if you have more questions.";
+            } else {
+                return "I'm not sure I understand. Could you please rephrase your question?";
+            }
+        }
+
+        // Initialize with a welcome message if chat is empty
+        if (chatbox.children.length === 0) {
+            addMessage("Hello! I'm your CyberOptic Assistant. How can I help you today?", 'bot');
+        }
+    </script>
+</body>
+</html>
