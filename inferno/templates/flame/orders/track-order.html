@@ -3,13 +3,13 @@
 {% load i18n %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="cx-container cx-orders">
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <!-- Header -->
-            <div class="text-center mb-5">
+            <div class="text-center mb-4 track-head">
+                <span class="cx-eyebrow"><i class="fas fa-truck-fast"></i> {% trans "Track Order" %}</span>
                 <h2>
-                    <i class="fas fa-truck text-primary"></i>
                     {% trans "Track Your Order" %}
                 </h2>
                 <p class="lead">{% trans "Order" %} #{{ order.order_number }}</p>
@@ -22,11 +22,11 @@
             </div>
 
             <!-- Progress Tracker -->
-            <div class="card mb-5">
+            <div class="card mb-4 tracker-card">
                 <div class="card-body p-4">
                     <div class="order-tracker">
                         <div class="row text-center">
-                            <div class="col-md-2 order-status {% if tracking_info.progress_percentage >= 20 %}completed{% endif %}">
+                            <div class="col order-status {% if tracking_info.progress_percentage >= 20 %}completed{% endif %}">
                                 <div class="icon-circle">
                                     <i class="fas fa-check"></i>
                                 </div>
@@ -37,7 +37,7 @@
                                     {% endif %}
                                 </p>
                             </div>
-                            <div class="col-md-2 order-status {% if tracking_info.progress_percentage >= 40 %}completed{% endif %}">
+                            <div class="col order-status {% if tracking_info.progress_percentage >= 40 %}completed{% endif %}">
                                 <div class="icon-circle">
                                     <i class="fas fa-credit-card"></i>
                                 </div>
@@ -48,7 +48,7 @@
                                     {% endif %}
                                 </p>
                             </div>
-                            <div class="col-md-2 order-status {% if tracking_info.progress_percentage >= 60 %}completed{% endif %}">
+                            <div class="col order-status {% if tracking_info.progress_percentage >= 60 %}completed{% endif %}">
                                 <div class="icon-circle">
                                     <i class="fas fa-box"></i>
                                 </div>
@@ -59,7 +59,7 @@
                                     {% endif %}
                                 </p>
                             </div>
-                            <div class="col-md-2 order-status {% if tracking_info.progress_percentage >= 80 %}completed{% endif %}">
+                            <div class="col order-status {% if tracking_info.progress_percentage >= 80 %}completed{% endif %}">
                                 <div class="icon-circle">
                                     <i class="fas fa-shipping-fast"></i>
                                 </div>
@@ -70,7 +70,7 @@
                                     {% endif %}
                                 </p>
                             </div>
-                            <div class="col-md-2 order-status {% if tracking_info.progress_percentage >= 100 %}completed{% endif %}">
+                            <div class="col order-status {% if tracking_info.progress_percentage >= 100 %}completed{% endif %}">
                                 <div class="icon-circle">
                                     <i class="fas fa-home"></i>
                                 </div>
@@ -111,7 +111,7 @@
                                         <div class="timeline-content">
                                             <div class="d-flex justify-content-between align-items-start">
                                                 <div>
-                                                    <h6 class="mb-1">{{ history.get_status_display }}</h6>
+                                                    <h6 class="mb-1">{% trans history.get_status_display %}</h6>
                                                     <p class="text-muted mb-2">
                                                         {{ history.timestamp|date:"F d, Y \a\t H:i" }}
                                                     </p>
@@ -162,7 +162,7 @@
                             <div class="status-icon mb-3">
                                 <i class="fas fa-{% if order.product_status == 'delivered' %}check-circle text-success{% elif order.product_status == 'shipped' %}truck text-primary{% elif order.product_status == 'processing' %}cog fa-spin text-warning{% elif order.product_status == 'cancelled' %}times-circle text-danger{% else %}clock text-muted{% endif %} fa-3x"></i>
                             </div>
-                            <h4 class="mb-2">{{ order.get_product_status_display }}</h4>
+                            <h4 class="mb-2">{% trans order.get_product_status_display %}</h4>
                             <div class="progress mb-3" style="height: 8px;">
                                 <div class="progress-bar" role="progressbar" 
                                      style="width: {{ tracking_info.progress_percentage }}%"
@@ -248,95 +248,123 @@
 </div>
 
 <style>
-.order-tracker {
-    position: relative;
-    padding: 20px 0;
+/* ===== Orders - neon glass (shared by order list / detail / track / cancel / return) ===== */
+.cx-orders { padding: clamp(24px, 4vw, 44px) 0 56px; }
+.cx-orders .cx-page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+.cx-orders .cx-page-head h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 700; margin: 12px 0 4px; color: var(--cx-heading); display: flex; align-items: center; gap: 12px; }
+.cx-orders .cx-page-head p { color: var(--cx-muted); margin: 0; }
+.cx-orders .card { overflow: hidden; }
+.cx-orders .card-header { padding: 16px 20px; }
+.cx-orders .card-header h4, .cx-orders .card-header h5 { font-family: var(--cx-display); color: var(--cx-heading); font-weight: 600; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; }
+.cx-orders .card-header h4 { font-size: 1.25rem; }
+.cx-orders .card-header h5 > i, .cx-orders .card-header h4 > i { color: var(--cx-cyan); }
+.cx-orders .card-body { padding: 20px; }
+.cx-orders h6 { color: var(--cx-heading); font-weight: 600; font-family: var(--cx-font); font-size: .82rem; text-transform: uppercase; letter-spacing: .08em; }
+.cx-orders .card-body h6.mb-1, .cx-orders .timeline-content h6, .cx-orders .order-item-title { text-transform: none; letter-spacing: 0; font-size: .98rem; }
+.cx-orders p strong { color: var(--cx-heading); font-weight: 600; }
+.cx-orders .text-primary { color: var(--cx-cyan) !important; }
+.cx-orders .text-success { color: var(--cx-green) !important; }
+.cx-orders .text-warning { color: var(--cx-amber) !important; }
+.cx-orders .text-danger { color: var(--cx-red) !important; }
+.cx-orders .lead { color: var(--cx-text); }
+.cx-orders hr { margin: 14px 0; }
+
+/* Thumbnails */
+.cx-orders .cx-thumb, .cx-orders .order-items img, .cx-orders .table img, .cx-orders .card-body img.rounded {
+  object-fit: contain !important; background: radial-gradient(circle at 50% 40%, var(--cx-surface-2), var(--cx-bg-2));
+  border: 1px solid var(--cx-border); border-radius: 10px !important; padding: 4px;
 }
 
+/* Progress */
+.cx-orders .progress { background: var(--cx-soft-2); border-radius: 999px; overflow: hidden; }
+.cx-orders .progress-bar { background: var(--cx-grad) !important; border-radius: 999px; box-shadow: 0 0 12px rgba(34, 211, 238, .4); }
+
+/* Coloured card headers (cancel / return) */
+.cx-orders .card-header.bg-danger { background: linear-gradient(135deg, rgba(248, 113, 113, .18), rgba(236, 72, 153, .12)) !important; border-bottom: 1px solid rgba(248, 113, 113, .3) !important; }
+.cx-orders .card-header.bg-danger h4 i { color: var(--cx-red); }
+.cx-orders .card-header.bg-warning { background: linear-gradient(135deg, rgba(251, 191, 36, .18), rgba(249, 115, 22, .1)) !important; border-bottom: 1px solid rgba(251, 191, 36, .3) !important; }
+.cx-orders .card-header.bg-warning h4, .cx-orders .card-header.bg-warning { color: #fff !important; }
+.cx-orders .card-header.bg-warning h4 i { color: var(--cx-amber); }
+
+/* Extra outline buttons not covered by the theme */
+.cx-orders .btn-outline-info, .cx-orders .btn-outline-warning {
+  background: var(--cx-soft) !important; border: 1px solid var(--cx-border-strong) !important; color: var(--cx-text) !important;
+}
+.cx-orders .btn-outline-info i { color: var(--cx-cyan); }
+.cx-orders .btn-outline-warning i { color: var(--cx-amber); }
+.cx-orders .btn-outline-info:hover, .cx-orders .btn-outline-warning:hover { border-color: var(--cx-cyan) !important; color: #fff !important; box-shadow: var(--cx-glow); }
+.cx-orders .btn-sm { padding: 7px 14px; font-size: .85rem; }
+.cx-orders .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* Alerts inside order pages */
+.cx-orders .alert { padding: 16px 18px; }
+.cx-orders .alert h5, .cx-orders .alert h6 { color: inherit; font-family: var(--cx-display); font-size: 1rem; display: flex; gap: 8px; align-items: center; text-transform: none; letter-spacing: 0; }
+.cx-orders .alert-warning { border-left: 4px solid var(--cx-amber); }
+.cx-orders .alert-info { border-left: 4px solid var(--cx-cyan); }
+
+/* Timeline (detail + track) */
+.cx-orders .timeline { position: relative; padding-left: 34px; }
+.cx-orders .timeline::before { content: ""; position: absolute; left: 13px; top: 6px; bottom: 6px; width: 2px; background: linear-gradient(var(--cx-cyan), var(--cx-border-strong) 40%); }
+.cx-orders .timeline-item { position: relative; margin-bottom: 18px; }
+.cx-orders .timeline-item:last-child { margin-bottom: 0; }
+.cx-orders .timeline-marker {
+  position: absolute; left: -34px; top: 10px; width: 28px; height: 28px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 8px; color: var(--cx-muted);
+  background: var(--cx-surface-solid) !important; border: 2px solid var(--cx-border-strong);
+}
+.cx-orders .timeline-item.active .timeline-marker { background: var(--cx-grad) !important; border-color: transparent; color: var(--cx-heading); box-shadow: 0 0 0 5px rgba(34, 211, 238, .14); }
+.cx-orders .timeline-content { padding: 14px 16px; border-radius: 12px; background: var(--cx-soft); border: 1px solid var(--cx-border); }
+.cx-orders .timeline-item.active .timeline-content { border-color: rgba(34, 211, 238, .35); }
+.cx-orders .timeline-content p { color: var(--cx-text); }
+
+/* Empty state */
+.cx-orders .cx-empty i.cx-empty-icon { font-size: 2.4rem; margin-bottom: 14px; background: var(--cx-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.cx-orders .cx-empty h4 { color: var(--cx-heading); }
+
+@media (max-width: 575px) {
+  .cx-orders .card-header, .cx-orders .card-body { padding: 14px; }
+  .cx-orders .cx-page-head { align-items: flex-start; }
+}
+
+/* Track order */
+.track-head h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 700; margin: 14px 0 6px; }
+.track-head .lead { font-family: ui-monospace, Menlo, monospace; font-size: 1rem; color: var(--cx-cyan); margin-bottom: 4px; }
+.tracker-card .card-body { padding: 28px 20px !important; }
+.order-tracker { position: relative; padding: 4px 0; }
+.order-tracker .row { position: relative; z-index: 1; flex-wrap: nowrap; margin: 0; }
+.order-status { padding: 0 4px; }
 .order-status .icon-circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: #e9ecef;
-    color: #6c757d;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    font-size: 20px;
-    transition: all 0.3s ease;
+  width: 56px; height: 56px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; font-size: 1.15rem;
+  background: var(--cx-surface-solid); color: var(--cx-muted); border: 2px solid var(--cx-border-strong); transition: all .3s ease;
+}
+.order-status.completed .icon-circle { background: var(--cx-grad); border-color: transparent; color: #fff; box-shadow: 0 0 0 6px rgba(34, 211, 238, .12), 0 8px 24px rgba(139, 92, 246, .35); }
+.order-status h6 { margin-top: 14px !important; text-transform: none; letter-spacing: 0; font-size: .88rem; color: var(--cx-muted); }
+.order-status.completed h6 { color: var(--cx-heading); }
+.order-status p.small { font-size: .76rem; min-height: 1.2em; margin: 0; }
+.progress-line { position: absolute; top: 32px; left: 10%; right: 10%; height: 3px; background: var(--cx-border-strong); border-radius: 99px; z-index: 0; }
+.progress-fill { height: 100%; background: var(--cx-grad); border-radius: 99px; box-shadow: 0 0 12px rgba(34, 211, 238, .5); transition: width .5s ease; }
+.timeline:has(> .text-center) { padding-left: 0; }
+.timeline:has(> .text-center)::before { display: none; }
+.timeline .badge { border-radius: 999px; font-size: .72rem; }
+.status-icon i { font-size: 2.6rem; }
+.cx-orders .card-body.d-grid .btn { justify-content: flex-start; }
+@media (max-width: 640px) {
+  .order-tracker .row { flex-direction: column; gap: 14px; text-align: left !important; }
+  .order-status { display: grid; grid-template-columns: 44px 1fr; column-gap: 14px; align-items: center; }
+  .order-status .icon-circle { width: 44px; height: 44px; font-size: .95rem; grid-row: span 2; margin: 0; }
+  .order-status h6 { margin: 0 !important; }
+  .progress-line { display: none; }
 }
 
-.order-status.completed .icon-circle {
-    background: #4A5C6A;
-    color: white;
+/* The theme paints every .card .btn with the gradient; restore secondary / danger buttons inside cards */
+.cx-orders .card .btn-outline-primary, .cx-orders .card .btn-outline-secondary, .cx-orders .card .btn-outline-info,
+.cx-orders .card .btn-outline-warning, .cx-orders .card .btn-secondary {
+  background: var(--cx-soft) !important; color: var(--cx-text) !important; border: 1px solid var(--cx-border-strong) !important; box-shadow: none;
 }
-
-.progress-line {
-    position: absolute;
-    top: 50px;
-    left: 10%;
-    right: 10%;
-    height: 4px;
-    background: #e9ecef;
-    z-index: -1;
-}
-
-.progress-fill {
-    height: 100%;
-    background: #4A5C6A;
-    transition: width 0.5s ease;
-}
-
-.timeline {
-    position: relative;
-    padding-left: 30px;
-}
-
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 15px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #e9ecef;
-}
-
-.timeline-item {
-    position: relative;
-    margin-bottom: 30px;
-}
-
-.timeline-item.active .timeline-marker {
-    background: #4A5C6A;
-    color: white;
-}
-
-.timeline-marker {
-    position: absolute;
-    left: -22px;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: #e9ecef;
-    color: #6c757d;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-}
-
-.timeline-content {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    border-left: 3px solid #4A5C6A;
-}
-
-.progress-bar {
-    background-color: #4A5C6A;
-}
+.cx-orders .card .btn-outline-primary:hover, .cx-orders .card .btn-outline-secondary:hover, .cx-orders .card .btn-outline-info:hover,
+.cx-orders .card .btn-outline-warning:hover, .cx-orders .card .btn-secondary:hover { border-color: var(--cx-cyan) !important; color: #fff !important; box-shadow: var(--cx-glow); }
+.cx-orders .card .btn-outline-danger, .cx-orders .card .btn-danger { background: rgba(248, 113, 113, .12) !important; color: var(--cx-red) !important; border: 1px solid rgba(248, 113, 113, .4) !important; box-shadow: none; }
+.cx-orders .card .btn-outline-danger:hover, .cx-orders .card .btn-danger:hover { background: rgba(248, 113, 113, .22) !important; }
 </style>
 
 <script>

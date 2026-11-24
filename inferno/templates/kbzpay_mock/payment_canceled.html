@@ -1,9 +1,10 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Canceled - KBZPay</title>
+    <title>{% trans "Payment Canceled - KBZPay" %}</title>
     <style>
         * {
             margin: 0;
@@ -79,10 +80,10 @@
             </svg>
         </div>
 
-        <h1 class="cancel-title">Payment Canceled</h1>
-        <p class="cancel-message">Your payment has been canceled. No charges were made.</p>
+        <h1 class="cancel-title">{% trans "Payment Canceled" %}</h1>
+        <p class="cancel-message">{% trans "Your payment has been canceled. No charges were made." %}</p>
 
-        <button class="btn-close" onclick="window.close()">Close Window</button>
+        <button class="btn-close" onclick="window.close()">{% trans "Close Window" %}</button>
     </div>
 
     <script>

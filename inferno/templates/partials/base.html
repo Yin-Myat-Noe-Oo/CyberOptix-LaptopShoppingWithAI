@@ -1,23 +1,31 @@
 {% load static %}
 {% load i18n %}
-
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+      /* Apply the saved colour theme before first paint (no flash). */
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("cx-theme"); } catch (e) {}
+        if (t !== "light" && t !== "dark") {
+          t = (window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+        }
+        document.documentElement.setAttribute("data-theme", t);
+      })();
+    </script>
     <title>{% trans "CyberOptix - Premium Laptops Myanmar" %}</title>
     <!-- CDN version of QRCode.js, must load before you call new QRCode() -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
-      integrity="sha512-Tgm85HU6gO7aU+ksSXsDXgx0M7xWdE7X7+Fu7nchhwXg6GzXlV1x9cTxzIhV+QfLQR5e09azn162IK8aSelfNQ=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-      onerror="this.src='{% static "assets/libs/qrcode/qrcode.min.js" %}'">
-    </script>
+    <script src="{% static "assets/libs/qrcode/qrcode.min.js" %}"></script>
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Poppins:wght@400;500;600;700&family=Noto+Sans+Myanmar:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#070b14">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" onerror="this.href='{% static "assets/libs/fontawesome/all.min.css" %}'">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" onerror="this.href='{% static "assets/libs/boxicons/boxicons.min.css" %}'">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" onerror="this.href='{% static "assets/libs/bootstrap-icons/bootstrap-icons.css" %}'">
@@ -28,130 +36,116 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" onerror="document.write('<script src=\\'{% static "assets/libs/bootstrap/js/bootstrap.bundle.min.js" %}\\'><\/script>')"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static "assets/css/cyberoptixcss.css" %}">
+    {% block extra_head %}{% endblock %}
+    <link rel="stylesheet" href="{% static "assets/css/cyber-theme.css" %}">
+    <link rel="stylesheet" href="{% static "assets/css/veras.css" %}">
     <script src="{% url 'javascript-catalog' %}"></script>
     <script src="{% static "assets/js/function.js" %}"></script>
     <style>
         /* Myanmar language specific styles */
-        html[lang="my"] {
-            font-family: 'Padauk', sans-serif;
+        /* Myanmar script: dedicated font + taller line height so stacked vowels aren't clipped */
+        html[lang="my"] body, html[lang="my"] h1, html[lang="my"] h2, html[lang="my"] h3,
+        html[lang="my"] h4, html[lang="my"] h5, html[lang="my"] button, html[lang="my"] input {
+            font-family: "Noto Sans Myanmar", "Inter", sans-serif !important;
         }
-        
-        html[lang="my"] .navbar {
-            font-size: 1.1rem;
-        }
+        html[lang="my"] body { line-height: 1.8; }
+        html[lang="my"] h1, html[lang="my"] h2 { line-height: 1.45 !important; letter-spacing: 0; }
     </style>
 </head>
 
-<body>
+<body class="{% block body_class %}{% endblock %}">
     <!-- Header -->
-    <div class="navbar" style="background-color:#4A5C6A;">
+    <header class="navbar cx-nav">
         <div class="logo">
-            <span id="menu-toggle"><i class="fas fa-bars"></i></span>
-            <i class="fas fa-laptop"></i>  {% trans "CyberOptix" %}
+            <span id="menu-toggle" aria-label="{% trans 'Browse categories' %}" role="button"><i class="fas fa-bars"></i></span>
+            <a href="{% url 'flame:home' %}" class="cx-brand">
+                <span class="cx-logo-mark"><i class="fas fa-bolt"></i></span>
+                <span class="cx-brand-text">Cyber<span>Optix</span></span>
+            </a>
         </div>
-        <nav style="background-color:#4A5C6A;">
-            <a href="{% url "flame:home" %}">{% trans "Home" %}</a>
+        <nav>
+            <a href="{% url "flame:home" %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">{% trans "Home" %}</a>
+            <a href="{% url 'flame:product-list' %}" class="cx-hide-md {% if request.resolver_match.url_name == 'product-list' %}active{% endif %}">{% trans "Products" %}</a>
             <div class="shop-dropdown">
-                <a class="shop-trigger" style="cursor:pointer;">{% trans "Shop" %}</a>
+                <a class="shop-trigger" style="cursor:pointer;">{% trans "Shops" %} <i class="fas fa-chevron-down" style="font-size:.65rem;margin-left:4px;"></i></a>
                 <div class="shop-menu">
-                    {% for s in shop_views %}  
+                    {% for s in shop_views %}
                         <a href="{% url 'flame:shop-detail' s.shop_id %}">
-                            <i class="shop-item"> 
-                                {% get_current_language as LANGUAGE_CODE %}
-                                {% if LANGUAGE_CODE == 'my' and s.title_my %}
-                                    {{ s.title_my }}
-                                {% else %}
-                                    {{ s.title }}
-                                {% endif %} 
+                            <i class="shop-item">
+                                {% if LANGUAGE_CODE == 'my' and s.title_my %}{{ s.title_my }}{% else %}{{ s.title }}{% endif %}
                                 {% trans "Shop" %}</i>
                         </a>
                     {% endfor %}
                 </div>
             </div>
-            <a href="{% url "flame:About" %}">{% trans "About" %}</a>
-            <a href="{% url "flame:FAQs" %}">{% trans "FAQs" %}</a>
-            <a href="{% url "flame:recommendation_page" %}">{% trans "Recommendations" %}</a>
+            <a href="{% url "flame:recommendation_page" %}" class="cx-ai-link {% if request.resolver_match.url_name == 'recommendation_page' %}active{% endif %}"><i class="fas fa-wand-magic-sparkles"></i> <span class="cx-label">{% trans "AI Picks" %}</span></a>
+            <a href="{% url "flame:About" %}" class="cx-hide-md">{% trans "About" %}</a>
+            <a href="{% url "flame:FAQs" %}" class="cx-hide-md">{% trans "FAQs" %}</a>
 
+            <button type="button" class="cx-theme-toggle" id="cx-theme-toggle" aria-label="{% trans 'Switch light / dark mode' %}" title="{% trans 'Switch light / dark mode' %}">
+                <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
+            </button>
             {% include 'partials/language_switcher.html' %}
             <div class="icon-cart">
-                <a href="{% url 'flame:wishlist' %}">
+                <a href="{% url 'flame:wishlist' %}" aria-label="{% trans 'Wishlist' %}">
                     <i class="fas fa-heart"></i>
-                    <span id="wishlist-count" data-shop="shop.shop_id">
-                        {{ wishlist_count }}
-                    </span>
+                    <span id="wishlist-count" data-shop="shop.shop_id">{{ wishlist_count }}</span>
                 </a>
             </div>
 
             <div class="icon-cart">
-                <a href="{% url "flame:shop-cart" %}">
+                <a href="{% url "flame:shop-cart" %}" aria-label="{% trans 'Cart' %}">
                     <i class="fas fa-shopping-bag"></i>
-                    <span class="cart-items-count shop-cart-count total-cart-items" data-shop="shop.shop_id">
-                        {{ total_cart_items }}
-                    </span>
+                    <span class="cart-items-count shop-cart-count total-cart-items" data-shop="shop.shop_id">{{ total_cart_items }}</span>
                 </a>
             </div>
             <div class="dropdown">
-                <a href="{% url 'flame:home' %}" id="userMenu" class="user-icon dropdown-toggle" style="text-decoration: none; color: #fff;" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user-circle" style="font-size: 1.5rem;"></i>
+                <a href="{% url 'flame:home' %}" id="userMenu" class="user-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{% trans 'Account' %}">
+                    <i class="fas fa-user"></i>
                 </a>
                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                      {% if user.is_authenticated %}
-                        <a href="{% url 'flame:profile' %}" class="dropdown-item">
-                            <i class="fas fa-user" style="font-size: 1rem;"></i> {% trans "Profile" %}
-                        </a>
-                        <a href="{% url 'userauths:sign-out' %}" class="dropdown-item">
-                            <i class="fas fa-sign-out" style="font-size: 1rem;"></i> {% trans "Sign Out" %}
-                        </a>      
+                        <a href="{% url 'flame:profile' %}" class="dropdown-item"><i class="fas fa-user"></i> {% trans "Profile" %}</a>
+                        <a href="{% url 'flame:user-recommendations' %}" class="dropdown-item"><i class="fas fa-star"></i> {% trans "For You" %}</a>
+                        <a href="{% url 'userauths:sign-out' %}" class="dropdown-item"><i class="fas fa-sign-out"></i> {% trans "Sign Out" %}</a>
                     {% else %}
-                        <a href="{% url 'userauths:sign-in' %}" class="dropdown-item">
-                            <i class="fas fa-sign-in" style="font-size:1rem;"></i> {% trans "Sign In" %}
-                        </a>
-                        <a href="{% url 'userauths:sign-up' %}" class="dropdown-item">
-                            <i class="fas fa-user" style="font-size:1rem;"></i> {% trans "Sign up" %}
-                        </a>
+                        <a href="{% url 'userauths:sign-in' %}" class="dropdown-item"><i class="fas fa-sign-in"></i> {% trans "Sign In" %}</a>
+                        <a href="{% url 'userauths:sign-up' %}" class="dropdown-item"><i class="fas fa-user-plus"></i> {% trans "Sign up" %}</a>
                     {% endif %}
                 </div>
             </div>
         </nav>
-        <div class="menu-icon">
-            <i class="fas fa-bars"></i>
-        </div>
-
-    </div>
+    </header>
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <a href="#" id="brand-link" onclick="toggleBrandOptions()">
-            <span>{% trans "Brand" %}</span>
-            <span id="arrow">&#9660;</span>
-        </a>
-        <form method="get" action="{% url 'flame:product-list' %}">
-            <div id="brand-options" style="display: none; margin-left: 40px;">
-                <a href="{% url 'flame:product-list' %}" class="filter-option {% if active_brand == '' or active_brand == 'All' %}active{% endif %}">{% trans "All" %}</a><br>
-                <a href="{% url 'flame:product-list' %}?brand=Apple" class="filter-option {% if active_brand == 'Apple' %}active{% endif %}">Apple</a><br>
-                <a href="{% url 'flame:product-list' %}?brand=Lenovo" class="filter-option {% if active_brand == 'Lenovo' %}active{% endif %}">Lenovo</a><br> 
-                <a href="{% url 'flame:product-list' %}?brand=HP" class="filter-option {% if active_brand == 'HP' %}active{% endif %}">HP</a><br>
-                <a href="{% url 'flame:product-list' %}?brand=Dell" class="filter-option {% if active_brand == 'Dell' %}active{% endif %}">Dell</a><br>
-                <a href="{% url 'flame:product-list' %}?brand=Asus" class="filter-option {% if active_brand == 'Asus' %}active{% endif %}">Asus</a><br> 
-                <a href="{% url 'flame:product-list' %}?brand=Acer" class="filter-option {% if active_brand == 'Acer' %}active{% endif %}">Acer</a><br> 
-            </div>
-                <a href="{% url 'flame:product-list' %}?category=Laptop" name="Laptop" class="filter-option {% if active_category == 'Laptop' or active_category == 'လက်ပ်တော့' %}active{% endif %}">{% trans 'Laptop' %}</a><br>
-                <a href="{% url 'flame:product-list' %}?category=Desktop" class="filter-option {% if active_category == 'Desktop' or active_category == 'ဒက်စ်တော့' %}active{% endif %}">{% trans "Desktop" %}</a><br>
-                <a href="{% url 'flame:product-list' %}?category=Accessories" class="filter-option {% if active_category == 'Accessories' or active_category == 'အသုံးအဆောင်ပစ္စည်းများ' %}active{% endif %}">{% trans "Accessories" %}</a><br> 
-        </form>
+        <div class="cx-side-title">{% trans "Categories" %}</div>
+        <a href="{% url 'flame:product-list' %}?category=Laptop" class="filter-option {% if active_category == 'Laptop' or active_category == 'လက်ပ်တော့' %}active{% endif %}"><i class="fas fa-laptop me-2"></i>{% trans 'Laptop' %}</a>
+        <a href="{% url 'flame:product-list' %}?category=Desktop" class="filter-option {% if active_category == 'Desktop' or active_category == 'ဒက်စ်တော့' %}active{% endif %}"><i class="fas fa-desktop me-2"></i>{% trans "Desktop" %}</a>
+        <a href="{% url 'flame:product-list' %}?category=Accessories" class="filter-option {% if active_category == 'Accessories' or active_category == 'အသုံးအဆောင်ပစ္စည်းများ' %}active{% endif %}"><i class="fas fa-headphones me-2"></i>{% trans "Accessories" %}</a>
+        <div class="cx-side-title">{% trans "Brands" %}</div>
+        <a href="{% url 'flame:product-list' %}" class="filter-option {% if active_brand == '' or active_brand == 'All' %}active{% endif %}">{% trans "All brands" %}</a>
+        <a href="{% url 'flame:product-list' %}?brand=Apple" class="filter-option {% if active_brand == 'Apple' %}active{% endif %}">Apple</a>
+        <a href="{% url 'flame:product-list' %}?brand=Lenovo" class="filter-option {% if active_brand == 'Lenovo' %}active{% endif %}">Lenovo</a>
+        <a href="{% url 'flame:product-list' %}?brand=HP" class="filter-option {% if active_brand == 'HP' %}active{% endif %}">HP</a>
+        <a href="{% url 'flame:product-list' %}?brand=Dell" class="filter-option {% if active_brand == 'Dell' %}active{% endif %}">Dell</a>
+        <a href="{% url 'flame:product-list' %}?brand=Asus" class="filter-option {% if active_brand == 'Asus' %}active{% endif %}">Asus</a>
+        <a href="{% url 'flame:product-list' %}?brand=Acer" class="filter-option {% if active_brand == 'Acer' %}active{% endif %}">Acer</a>
+        <div class="cx-side-title">{% trans "Smart shopping" %}</div>
+        <a href="{% url 'flame:recommendation_page' %}"><i class="fas fa-wand-magic-sparkles me-2"></i>{% trans "AI Picks" %}</a>
+        <a href="#" data-veras-open><i class="fas fa-robot me-2"></i>{% trans "Ask Veras" %}</a>
     </div>
     <!-- Overlay -->
     <div class="overlay" id="overlay"></div>
     <!-- Shopping Cart Modal (Initially hidden) -->
     <div class="cartTab" >
         <div class="btn" style="background-color:#B8C2C2;">
-            <button class="closing">CLOSE</button>
-            <button class="checkOut">Check Out</button>
+            <button class="closing">{% trans "Close" %}</button>
+            <button class="checkOut">{% trans "Check Out" %}</button>
         </div>
     </div>
 
     
-    <br><br>
     {% comment %} 
     {% if messages %}
         {% for message in messages %}
@@ -257,43 +251,54 @@ function showDynamicAlert(type, message) {
     
     {% endblock content%}
     
-    <footer>
-        <div class="footer-content">
-            <div class="footer-left">
-                <div class="logo">
-                    <i class="fas fa-laptop"></i>CyberOptix
-                </div><br>
-                <p>{% trans "All Rights Reserved 2024-2025" %}</p>
-            </div>
-            <div class="footer-links">
-                <h4>{% trans "Information" %}</h4>
-                <ul>
-                    <li><a href="{% url 'flame:AboutUs' %}">"{% trans "About Us" %}"</a></li>
-                  
-                </ul>
-            </div>
-            <div class="footer-links">
-                <h4>{%trans "Helpful Links" %}</h4>
-                <ul>
-                    <li><a href="{% url 'flame:Services' %}">{% trans "Services" %}</a></li>
-                    <li><a href="{% url 'flame:PrivacyPolicy' %}">{% trans "Privacy Policy" %}</a></li>
-                    <li><a href="{% url 'flame:Terms' %}">{% trans "Terms & Condition" %}</a></li>
-                </ul>
-            </div>
-           
-            <div class="footer-contact">
-                <h4>{% trans "Contact Us" %}</h4>
-                <p>+959 00090999</p>
-                <p>cyberoptix@gmail.com</p>
-                <div class="social-icons">
-                    <a href="#" class="me-3"><i class="bi bi-facebook" style="font-size: 1.5rem; color: #4A5C6A;"></i></a>
-                    <a href="#" class="me-3"><i class="bi bi-instagram" style="font-size: 1.5rem; color: #4A5C6A;"></i></a>
-                    <a href="#" class="me-3"><i class="bi bi-twitter" style="font-size: 1.5rem; color: #4A5C6A;"></i></a>
-                    <a href="#"><i class="bi bi-google" style="font-size: 1.5rem; color: #4A5C6A;"></i></a>
+    <footer class="cx-footer">
+        <div class="cx-container">
+            <div class="cx-footer-grid">
+                <div>
+                    <a href="{% url 'flame:home' %}" class="cx-brand" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+                        <span class="cx-logo-mark"><i class="fas fa-bolt"></i></span>
+                        <span style="color:var(--cx-heading);font-family:var(--cx-display);font-weight:700;font-size:1.25rem;">Cyber<span class="cx-gradient-text">Optix</span></span>
+                    </a>
+                    <p style="margin-top:14px;max-width:320px;">{% trans "Myanmar's AI-powered laptop marketplace. Compare shops, get smart recommendations and check out your way." %}</p>
                 </div>
+                <div>
+                    <h4>{% trans "Information" %}</h4>
+                    <ul>
+                        <li><a href="{% url 'flame:AboutUs' %}">{% trans "About Us" %}</a></li>
+                        <li><a href="{% url 'flame:FAQs' %}">{% trans "FAQs" %}</a></li>
+                        <li><a href="{% url 'flame:ReturnPolicy' %}">{% trans "Return Policy" %}</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>{% trans "Helpful Links" %}</h4>
+                    <ul>
+                        <li><a href="{% url 'flame:Services' %}">{% trans "Services" %}</a></li>
+                        <li><a href="{% url 'flame:PrivacyPolicy' %}">{% trans "Privacy Policy" %}</a></li>
+                        <li><a href="{% url 'flame:Terms' %}">{% trans "Terms & Condition" %}</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>{% trans "Contact Us" %}</h4>
+                    <ul>
+                        <li><i class="fas fa-phone me-2" style="color:var(--cx-cyan)"></i>+959 00090999</li>
+                        <li><i class="fas fa-envelope me-2" style="color:var(--cx-cyan)"></i>cyberoptix@gmail.com</li>
+                    </ul>
+                    <div class="social-icons">
+                        <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" aria-label="Google"><i class="bi bi-google"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="cx-footer-bottom">
+                <span>&copy; 2024-2025 CyberOptix. {% trans "All Rights Reserved" %}</span>
+                <span>{% trans "Powered by Veras AI" %} <i class="fas fa-robot" style="color:var(--cx-cyan)"></i></span>
             </div>
         </div>
     </footer>
+
+    {% block veras_widget %}{% include 'partials/veras_widget.html' %}{% endblock %}
     <!-- Scripts -->
     <script>
         function toggleBrandOptions() {
@@ -308,7 +313,19 @@ function showDynamicAlert(type, message) {
                 brandOptions.style.display = 'none';
             }
         }
-     
+
+        // Light / dark mode toggle
+        document.getElementById('cx-theme-toggle')?.addEventListener('click', () => {
+            const root = document.documentElement;
+            const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            root.classList.add('cx-theme-anim');
+            root.setAttribute('data-theme', next);
+            try { localStorage.setItem('cx-theme', next); } catch (e) {}
+            document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'light' ? '#f4f6fb' : '#070b14');
+            window.dispatchEvent(new CustomEvent('cx-theme', { detail: next }));
+            setTimeout(() => root.classList.remove('cx-theme-anim'), 400);
+        });
+
         document.addEventListener("DOMContentLoaded", () => {
   const body      = document.body;
   const menuToggle= document.getElementById('menu-toggle');

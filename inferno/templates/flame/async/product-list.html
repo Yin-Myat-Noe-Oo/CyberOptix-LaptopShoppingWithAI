@@ -1,14 +1,7 @@
-{% for p in products %}
-    <div class="card">
-        <img src="{{ p.image.url }}" class="card-img-top" alt="{{ p.title }}">
-        <h5 class="card-title">{{ p.title }}</h5>
-        <div class="card-footer">
-            <span class="price">${{ p.price }}</span>
-            <a href="{% url 'flame:shop-product-detail' p.shop.shop_id p.p_id %}" class="btn btn-primary" style="text-decoration: none;">
-                {% trans "View Product" %}
-            </a>
-        </div>
+{% load i18n %}{% for p in products %}
+    <div class="pl-item" data-shop="{{ p.shop|lower }}">
+        {% include 'partials/product_card.html' with product=p show_discount=True %}
     </div>
+{% empty %}
+    <div class="cx-empty"><i class="fas fa-box-open fa-2x mb-3"></i><p class="mb-0">{% trans "No products found." %}</p></div>
 {% endfor %}
-<br><br><br>
-<hr></hr>

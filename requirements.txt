@@ -103,3 +103,17 @@ django-cors-headers==4.8.0
 django-filter==25.1
 drf-spectacular==0.28.0
 djangorestframework-bulk==0.2.1
+
+# Added: required by views/apps but missing above
+reportlab
+django-pwa
+# Veras AI chatbot (Gradio studio, free AI provider via the OpenAI-compatible API)
+openai
+gradio
+# Free local voice (Whisper) and image search (CLIP); install the CPU build of torch:
+#   pip install --index-url https://download.pytorch.org/whl/cpu torch
+faster-whisper
+open_clip_torch
+# Demo video tooling (demo/live.py): browser automation + neural voice-over
+playwright
+edge-tts

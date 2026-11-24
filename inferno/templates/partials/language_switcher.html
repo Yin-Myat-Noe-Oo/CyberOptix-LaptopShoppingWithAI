@@ -267,8 +267,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Animation for initial load
     setTimeout(() => {
-        document.querySelector('.language-toggle').style.opacity = '1';
-        document.querySelector('.language-toggle').style.transform = 'translateY(0)';
+        const toggleEl = document.querySelector('.language-toggle');
+        if (toggleEl) {
+            toggleEl.style.opacity = '1';
+            toggleEl.style.transform = 'translateY(0)';
+        }
     }, 100);
 });
 </script>

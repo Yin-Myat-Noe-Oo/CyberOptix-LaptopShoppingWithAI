@@ -3,9 +3,9 @@
 {% load i18n %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'assets/css/login.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/login.css' %}?v=3">
 
-<main>
+<main class="cx-auth">
 <div class="container">
     <div class="form-container">
         <div class="col-1">
@@ -96,116 +96,37 @@
 </div>
 
 <style>
+/* Two-factor login - dark glass (base styles in login.css) */
 .user-info {
-    text-align: center;
-    margin: 20px 0;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 6px;
+  display: flex; align-items: center; gap: 12px; margin: 0 0 18px; padding: 12px 14px;
+  background: var(--cx-soft); border: 1px solid var(--cx-border); border-radius: 12px;
 }
-
-.user-avatar {
-    font-size: 48px;
-    color: #667eea;
-    margin-bottom: 10px;
+.user-avatar { font-size: 2rem; line-height: 1; color: var(--cx-cyan); }
+.user-info p { margin: 0; color: var(--cx-muted); }
+.user-info strong { color: #fff; }
+.\32 fa-help {
+  margin-top: 4px; padding: 14px 16px; display: grid; gap: 12px;
+  background: rgba(34, 211, 238, .06); border: 1px solid rgba(34, 211, 238, .22); border-radius: 12px;
 }
-
-.2fa-help {
-    margin: 20px 0;
-    padding: 15px;
-    background-color: #e3f2fd;
-    border-radius: 6px;
-    border-left: 4px solid #2196f3;
-}
-
-.help-section {
-    margin-bottom: 15px;
-}
-
-.help-section:last-child {
-    margin-bottom: 0;
-}
-
-.help-section h4 {
-    margin: 0 0 5px 0;
-    color: #1976d2;
-    font-size: 14px;
-}
-
-.help-section p {
-    margin: 0;
-    font-size: 13px;
-    color: #555;
-}
-
-.alternative-options {
-    text-align: center;
-    margin-top: 15px;
-}
-
-.alternative-options p {
-    margin: 8px 0;
-}
-
-.alternative-options a {
-    color: #667eea;
-    text-decoration: none;
-    font-size: 14px;
-}
-
-.alternative-options a:hover {
-    text-decoration: underline;
-}
-
+.cx-auth .\32 fa-help .help-section { margin: 0; padding: 0; background: none; border: 0; }
+.cx-auth .\32 fa-help .help-section h4 { margin: 0 0 4px; color: var(--cx-accent-text); font-size: .88rem; }
+.cx-auth .\32 fa-help .help-section p { margin: 0; color: var(--cx-muted); font-size: .84rem; }
 .backup-section {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #fff3cd;
-    border-radius: 6px;
-    border: 1px solid #ffeaa7;
+  margin-top: 18px; padding: 14px 16px; border-radius: 12px;
+  background: rgba(251, 191, 36, .08); border: 1px solid rgba(251, 191, 36, .35);
 }
-
-.backup-section h4 {
-    margin: 0 0 10px 0;
-    color: #856404;
-}
-
-.backup-section ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.backup-section li {
-    margin-bottom: 5px;
-}
-
-.backup-section a {
-    color: #856404;
-    text-decoration: none;
-}
-
-.backup-section a:hover {
-    text-decoration: underline;
-}
-
+.backup-section h4 { margin: 0 0 8px; color: #fde68a; font-size: .95rem; }
+.backup-section ul { margin: 0; padding-left: 18px; }
+.backup-section li { margin-bottom: 4px; color: #fde68a; }
+.backup-section a { color: #fde68a; text-decoration: none; }
+.backup-section a:hover { color: var(--cx-heading); text-decoration: underline; }
 /* Auto-format token input */
-#token {
-    text-align: center;
-    font-size: 18px;
-    font-family: monospace;
-    letter-spacing: 2px;
-}
-
-/* Session timeout warning */
+.cx-auth #token { text-align: center; font-size: 1.25rem; font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; letter-spacing: .3em; padding-left: 46px; padding-right: 46px; }
+.cx-auth #token::placeholder { letter-spacing: normal; font-size: .95rem; font-family: var(--cx-font); }
+/* Session timeout warning (added by JS) */
 .session-warning {
-    background-color: #fff3cd;
-    border: 1px solid #ffeaa7;
-    color: #856404;
-    padding: 10px;
-    border-radius: 4px;
-    margin-bottom: 15px;
-    text-align: center;
-    font-size: 12px;
+  padding: 10px 12px; border-radius: 10px; text-align: center; font-size: .82rem;
+  background: rgba(251, 191, 36, .1); border: 1px solid rgba(251, 191, 36, .4); color: #fde68a;
 }
 </style>
 

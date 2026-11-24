@@ -5,113 +5,65 @@
 {% load i18n %}
 {% block content %}
 
-    <style>
-       
-        .wishlist-container {
-            height: 700px;
-            overflow-y: auto;
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            
-        }
+<style>
+  .wishlist-page { padding: 36px 0 24px; }
+  .wishlist-container { width: min(1000px, 100% - 32px); margin-inline: auto; }
+  .wishlist-header { margin-bottom: 22px; }
+  .wishlist-header h1 { font-size: clamp(1.7rem, 3.4vw, 2.4rem); font-weight: 700; margin: 14px 0 6px; color: var(--cx-heading); }
+  .product-count { color: var(--cx-muted); font-size: .92rem; }
+  .product-count #itemCount { color: #fff; font-weight: 700; }
 
-        .wishlist-header {
-            margin-bottom: 1.5rem;
-        }
+  .wishlist-items { display: grid; gap: 14px; margin: 0; }
+  .wishlist-items .product-item {
+    display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 18px; align-items: center;
+    padding: 14px 18px; background: var(--cx-surface); border: 1px solid var(--cx-border); border-radius: var(--cx-radius);
+    backdrop-filter: blur(12px); transition: border-color .2s, box-shadow .2s;
+  }
+  .wishlist-items .product-item:hover { border-color: rgba(34, 211, 238, .4); box-shadow: 0 0 0 1px rgba(34, 211, 238, .2); }
+  .wishlist-items .product-image {
+    width: 96px; height: 80px; border-radius: 12px; overflow: hidden; display: grid; place-items: center;
+    background: radial-gradient(circle at 50% 40%, var(--cx-surface-2), var(--cx-bg-2)); border: 1px solid var(--cx-border);
+  }
+  .wishlist-items .product-image img { width: 100% !important; height: 100% !important; object-fit: contain; padding: 6px; }
+  .wishlist-items .product-info { min-width: 0; }
+  .wishlist-items .product-name { font-weight: 600; color: var(--cx-heading); margin-bottom: 6px; line-height: 1.35; overflow-wrap: anywhere; }
+  .wishlist-items .product-price { color: var(--cx-heading); font-weight: 700; margin-bottom: 6px; }
+  .wishlist-items .product-price .price-display { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+  .wishlist-items .product-price .old-price { color: var(--cx-muted) !important; font-weight: 400; font-size: .85rem; }
+  .wishlist-items .product-price small { color: var(--cx-muted) !important; font-weight: 400; }
+  .wishlist-items .stock-status { font-size: .75rem; display: inline-flex; padding: 3px 9px; border-radius: 999px; background: rgba(52, 211, 153, .12); color: var(--cx-green); }
+  .wishlist-items .stock-status.is-out { background: rgba(248, 113, 113, .12); color: var(--cx-red); }
 
-        .wishlist-header h1 {
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
+  .wishlist-items .product-actions { display: flex; align-items: center; gap: 8px; margin: 0; }
+  .wishlist-items .add-to-cart,
+  .wishlist-items .wl-view {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 40px; padding: 0 16px;
+    border-radius: 10px; font-size: .88rem; font-weight: 600; white-space: nowrap; cursor: pointer; text-decoration: none;
+  }
+  .wishlist-items .add-to-cart { background: var(--cx-grad); color: var(--cx-heading); border: 0; }
+  .wishlist-items .add-to-cart:hover { box-shadow: 0 8px 22px rgba(34, 211, 238, .35); }
+  .wishlist-items .add-to-cart:disabled { opacity: .8; cursor: default; }
+  .wishlist-items .remove-item {
+    width: 40px; height: 40px; border-radius: 10px; display: inline-grid; place-items: center; cursor: pointer;
+    background: rgba(248, 113, 113, .1) !important; color: var(--cx-red); border: 1px solid rgba(248, 113, 113, .35) !important;
+  }
+  .wishlist-items .remove-item:hover { background: rgba(248, 113, 113, .22) !important; }
 
-        .product-count {
-            color: #666;
-            font-size: 14px;
-        }
+  @media (max-width: 720px) {
+    .wishlist-items .product-item { grid-template-columns: 80px minmax(0, 1fr); padding: 14px; gap: 14px; }
+    .wishlist-items .product-image { width: 80px; height: 70px; }
+    .wishlist-items .product-actions { grid-column: 1 / -1; }
+    .wishlist-items .add-to-cart, .wishlist-items .wl-view { flex: 1 1 0; }
+  }
+</style>
 
-        .wishlist-items {
-            margin: 2rem 0;
-        }
-
-        .product-item {
-            display: flex;
-            align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .product-image {
-            width: 80px;
-            height: 80px;
-            background: #f0f0f0;
-            border-radius: 4px;
-            margin-right: 1rem;
-        }
-
-        .product-info {
-            flex-grow: 1;
-        }
-
-        .product-name {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .product-price {
-            color: #666;
-            margin-bottom: 0.3rem;
-        }
-
-        .stock-status {
-            color: #28a745;
-            font-size: 14px;
-        }
-
-        .product-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-left: auto;
-        }
-
-        .add-to-cart {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .remove-item {
-            color: #dc3545;
-            text-decoration: none;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .browse-categories {
-            text-align: center;
-            margin-top: 2rem;
-            color: #007bff;
-            text-decoration: none;
-            display: block;
-        }
-    </style>
-<main style="background-color:rgb(21, 40, 56);">
-<br>
-
+<main class="wishlist-page">
 <div class="wishlist-container" id="wishlist-list">
     <div class="wishlist-header">
+        <span class="cx-eyebrow"><i class="fas fa-heart"></i> {% trans "Wishlist" %}</span>
         <h1>{% trans "Your Wishlist" %}</h1>
         <div class="product-count">
-            {% blocktrans count count=wishlist_count %}
+            {% blocktrans count count=w|length %}
                 There are <span id="itemCount">{{ count }}</span> product in this list
             {% plural %}
                 There are <span id="itemCount">{{ count }}</span> products in this list
@@ -123,12 +75,12 @@
         {% for w in w %}
         <div class="product-item" data-wishlist-id="{{ w.id }}">
             <div class="product-image">
-                <img src="{{ w.product.image.url }}" style="height:60px;width:80px" alt="{{ w.product.title }}">
+                <img src="{{ w.product.image.url }}" alt="{{ w.product.title }}">
             </div>
             <div class="product-info">
                 <div class="product-name">{{ w.product.title }}</div>
                 <div class="product-price current-product-price-{{ w.product.id }}" id="current-product-price"> {% include 'flame/price_display.html' with product=w.product %}</div>
-                <div class="stock-status">
+                <div class="stock-status{% if not w.product.in_stock %} is-out{% endif %}">
                     {% if w.product.in_stock %}
                         {% trans "In Stock" %}
                     {% else %}
@@ -144,28 +96,22 @@
                 <input type="hidden" class="product-title-{{ w.product.id }}" value="{{ w.product.title }}">
                 <input type="hidden" class="product-title-{{ w.product.id }}" value="{{ w.product.shop.shop_id }}">
                 <button data-shop-id="{{ w.product.shop.shop_id }}" data-index="{{ w.product.id }}" class="add-to-cart add-to-cart-btn" id="add-to-cart-btn">
-                    {% trans "Add to cart" %}
+                    <i class="fas fa-cart-plus"></i> {% trans "Add to cart" %}
                 </button>
-                <a href="{% url 'flame:shop-product-detail' w.product.shop.shop_id w.product.p_id  %}">
-                    <button class="add-to-cart add-to-cart-btn">{% trans "View Product" %}</button>
-                </a>
+                <a href="{% url 'flame:shop-product-detail' w.product.shop.shop_id w.product.p_id  %}" class="wl-view cx-btn-ghost">{% trans "View Product" %}</a>
 
-                <button style="border:none; background:none;" class="btn-delete delete-wishlist-product remove-item"
+                <button class="btn-delete delete-wishlist-product remove-item"
                         data-wishlist-product="{{ w.id }}"
                         data-shop-id="{{ shop_cart.shop.shop_id }}"
-                        data-wishlist-id="{{ w.id }}">
+                        data-wishlist-id="{{ w.id }}"
+                        title="{% trans 'Remove' %}" aria-label="{% trans 'Remove' %}">
                     <i class="fa fa-trash"></i>
                 </button>
             </div>
         </div>
         {% endfor %}
     </div>
-
 </div>
-
-<br>
-
 </main>
 
- 
-    {% endblock content %}
+{% endblock content %}

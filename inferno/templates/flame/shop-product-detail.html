@@ -6,269 +6,239 @@
 
 <link rel="stylesheet" type="text/css" href="{% static 'assets/css/product-detail.css' %}">
 
-<section>
+<section class="pd-page">
+  <div class="cx-container">
+    <div class="pd-grid">
 
-  <div class="container flex">
-    <div class="left">
-      <!-- Main Product Image -->
-      <div class="main_image">
-        <img src="{{p.image.url}}" class="slide" alt="{% blocktrans with title=p.title %}Main image of {{ title }}{% endblocktrans %}">
-      </div>
-      
-      <!-- Small Thumbnails -->
-      <div class="option flex">
-            <img src="{{p.image.url}}" class="slide" alt="{% blocktrans with title=p.title %}Thumbnail of {{ title }}{% endblocktrans %}">
-            {% for p in p_image|slice:":5" %}
-                <img src="{{ p.images.url }}" alt="{% trans 'Product Image' %}">
-            {% endfor %}
-      </div>
-
-        <!-- Related Products Section -->
-        <div class="compact-related-products">
-            {% comment %} check if there is any related products {% endcomment %}
-            {% if products %} 
-            <h4>{% trans "Related Products" %}</h4>
-            {% endif %}
-            <div class="carousel-container">
-                {% for p in products %}
-                <a href="{% url 'flame:shop-product-detail' p.shop.shop_id p.p_id  %}" class="related-item">
-                    <div class="product-image product-info">
-                        <img src="{{p.image.url}}" alt="{{p.title}}">
-                        <h5>{{p.title|truncatechars:35}}</h5>
-                        <span>
-                          {% if is_myanmar or current_language == 'my' %}
-                          {{ p.price|multiply:exchange_rate|floatformat:0|to_myanmar_numerals }} ကျပ်
-                          {% else %}
-                          ${{ p.price|floatformat:2 }}
-                          {% endif %}
-                        </span>
-                    </div>
-                    
-                </a>
-                {% endfor %}
-            </div>
+      <!-- Gallery -->
+      <div class="left pd-gallery cx-glass">
+        <!-- Main Product Image -->
+        <div class="main_image">
+          <img src="{{p.image.url}}" class="slide" alt="{% blocktrans with title=p.title %}Main image of {{ title }}{% endblocktrans %}">
         </div>
-        
-       
-    </div>
-    
 
-    <div class="right">
-        {% if p.get_percentage > 0 %}
-        <span class="tab-btn">
+        <!-- Small Thumbnails -->
+        <div class="option flex">
+          <img src="{{p.image.url}}" class="slide is-active" alt="{% blocktrans with title=p.title %}Thumbnail of {{ title }}{% endblocktrans %}">
+          {% for p in p_image|slice:":5" %}
+            <img src="{{ p.images.url }}" alt="{% trans 'Product Image' %}">
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Product info -->
+      <div class="right pd-info cx-glass">
+        {% if p.old_price and p.old_price > p.price %}
+          <span class="pd-discount">
             {% if current_language == 'my' %}
-                -{{ p.get_percentage|floatformat:0|to_myanmar_numerals }}%
+              -{{ p.get_percentage|floatformat:0|to_myanmar_numerals }}%
             {% else %}
-                -{{ p.get_percentage|floatformat:0 }}%
+              -{{ p.get_percentage|floatformat:0 }}%
             {% endif %}
-        </span>
-    {% endif %}
-      <h3>{{p.title}}</h3>
-      
-      {% comment %} <h4 class="current-product-price-{{p.id}}" id="current-product-price" > {% include 'flame/price_display.html' with product=p %}</h4> {% endcomment %}
-      <h4 class="current-product-price-{{p.id}}" id="current-product-price">
-        {% include 'flame/price_display.html' with product=p %}
-    </h4>
-      
-      <!-- Tab Navigation -->
-      <div class="tab-navigation">
-        <button class="tab-btn active" data-target="#description">{% trans "Description" %}</button>
-        <button class="tab-btn" data-target="#additional-info">{% trans "Additional Info" %}</button>
-        <button class="tab-btn" data-target="#vendor">{% trans "Shop" %}</button>
-        
-        {% comment %} Place Reviews label with count below to preserve structure {% endcomment %}
-        <button class="tab-btn" data-target="#reviews">{% blocktrans with count=reviews.count %}Reviews ({{ count }}){% endblocktrans %}</button>
-      </div>
+          </span>
+        {% endif %}
+        <h1 class="pd-title">{{p.title}}</h1>
 
-      <!-- Tab Content -->
-      <div class="tab-content">
-        <!-- Description Tab -->
-        <div class="tab-pane active" id="description">
-          {% comment %} <p>{{p.description|truncatechars:100}}</p> {% endcomment %}
-          <p>{{p.description|linebreaksbr}}</p>
-          
-          <h5>{% trans "Quantity" %}</h5>
-          <div class="add flex1">
-            {% comment %} <span>-</span>
-            <label>1</label>
-            <span>+</span> {% endcomment %}
-            <input type="number" value="1" name="" id="product-quantity" class="product-quantity-{{p.id}}">
+        <h4 class="current-product-price-{{p.id}} pd-price" id="current-product-price">
+          {% include 'flame/price_display.html' with product=p %}
+        </h4>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation" role="tablist">
+          <button type="button" class="tab-btn active" data-target="#description">{% trans "Description" %}</button>
+          <button type="button" class="tab-btn" data-target="#additional-info">{% trans "Additional Info" %}</button>
+          <button type="button" class="tab-btn" data-target="#vendor">{% trans "Shop" %}</button>
+          <button type="button" class="tab-btn" data-target="#reviews">{% blocktrans with count=reviews.count %}Reviews ({{ count }}){% endblocktrans %}</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+          <!-- Description Tab -->
+          <div class="tab-pane active" id="description">
+            <p class="pd-description">{{p.description|linebreaksbr}}</p>
+
+            <h5>{% trans "Quantity" %}</h5>
+            <div class="pd-buy">
+              <div class="add flex1">
+                <input type="number" value="1" min="1" name="" id="product-quantity" class="product-quantity-{{p.id}}" aria-label="{% trans 'Quantity' %}">
+              </div>
+              <input type="hidden" value="1" id="product-quantity" class="product-quantity-{{p.id}}">
+              <input type="hidden" class="product-pid-{{ p.id }}" value="{{ p.p_id }}">
+              <input type="hidden" class="product-image-{{ p.id }}" value="{{ p.image.url }}">
+              <input type="hidden" class="product-id-{{ p.id }}" value="{{ p.id }}">
+              <input type="hidden" class="product-title-{{ p.id }}" value="{{ p.title }}">
+              <input type="hidden" class="product-price-usd-{{ p.id }}" value="{{ p.price }}">
+              <button type="submit" data-shop-id="{{shop.shop_id}}" data-index="{{p.id}}" class="add-to-cart-btn cx-btn" id="add-to-cart-btn"><i class="fas fa-cart-plus"></i> {% trans "Add to Cart" %}</button>
+              <a href="{% url 'flame:product-list' %}" class="cx-btn-ghost">{% trans "Countinue Browsing" %}</a>
+            </div>
           </div>
-          {% comment %} <input type="hidden" value="{{p.id}}" class="product-id" name="" id="">
-          <input type="hidden" value="{{p.title}}" class="product-title" name="" id=""> {% endcomment %}
-          <input type="hidden" value="1" id="product-quantity" class="product-quantity-{{p.id}}">
-          <input type="hidden" class="product-pid-{{ p.id }}" value="{{ p.p_id }}">
-          <input type="hidden" class="product-image-{{ p.id }}" value="{{ p.image.url }}">
-          <input type="hidden" class="product-id-{{ p.id }}" value="{{ p.id }}">
-          <input type="hidden" class="product-title-{{ p.id }}" value="{{ p.title }}">
-           <input type="hidden" class="product-price-usd-{{ p.id }}" value="{{ p.price }}">
-          
-          <button type="submit" data-shop-id="{{shop.shop_id}}" data-index="{{p.id}}" class="add-to-cart-btn" id="add-to-cart-btn">{% trans "Add to Cart" %}</button>
-          <button type="submit"><a href="{% url 'flame:product-list' %}" style="text-decoration: none; color: inherit;">{% trans "Countinue Browsing" %}</a></button>
-        </div>
 
-        <!-- Additional Info Tab -->
-        <div class="tab-pane" id="additional-info">
-          <h4>{% trans "Product Specifications" %}</h4>
-          {{p.specification|linebreaksbr}}
-          {% comment %} <ul>
-            <li>Material: Aluminum</li>
-            <li>Weight: 0.5kg</li>
-            <li>Dimensions: 15 x 10 x 2 cm</li>
-            <li>Warranty: 2 years</li>
-          </ul> {% endcomment %}
-        </div>
+          <!-- Additional Info Tab -->
+          <div class="tab-pane" id="additional-info">
+            <h4>{% trans "Product Specifications" %}</h4>
+            <div class="pd-specs">{{p.specification|linebreaksbr}}</div>
+          </div>
 
-        <!-- Vendor Tab -->
-        <div class="tab-pane" id="vendor">
-          <div class="vendor-info">
-            <h4>{% trans "Seller Information" %}</h4>
-            <div class="vendor-rating">
-                <div class="option flex">
-                    <img src="{{p.shop.image.url}}" alt="{% blocktrans with shop=p.shop.title %}Image for {{ shop }}{% endblocktrans %}">
-                </div>
-                <span>{{p.shop.title}}</span>
-              <div class="rating-bars">
-                <div class="rating-bar">
+          <!-- Vendor Tab -->
+          <div class="tab-pane" id="vendor">
+            <div class="vendor-info">
+              <h4>{% trans "Seller Information" %}</h4>
+              <div class="vendor-rating vendor-head">
+                <img src="{{p.shop.image.url}}" alt="{% blocktrans with shop=p.shop.title %}Image for {{ shop }}{% endblocktrans %}">
+                <strong>{{p.shop.title}}</strong>
+              </div>
+              <div class="pd-facts">
+                <div class="rating-bar-row">
                   <span>{% trans "Delivery Address" %}</span>
-                  {% comment %} <div class="bar"><div class="fill" style="width: 92%;"></div></div> {% endcomment %}
                   <span>{{ address.address }}</span>
                 </div>
-                {% comment %} <div class="rating-bar">
-                  <span>Response Rate</span>
-                  <div class="bar"><div class="fill" style="width: 100%;"></div></div>
-                  <span>100%</span>
-                </div> {% endcomment %}
-              </div>
-            </div>
-            <p>{% trans "Shop Address:" %} {{p.shop.address}}</p>
-            <p>{% trans "Contact Seller:" %} {{p.shop.contact}}</p>
-            
-           <p>
-            {% blocktrans count stock_count=p.stock_count|add:0 %}
-              In Stock: {{ stock_count }} item
-            {% plural %}
-              In Stock: {{ stock_count }} items
-            {% endblocktrans %}
-            </p>
-          </div>
-        </div>
-
-        <!-- Reviews Tab -->
-        <div class="tab-pane" id="reviews">
-          <div class="reviews-summary">
-            <h4>{% trans "Customer Reviews" %}</h4>
-            <div class="overall-rating">
-              <h5>{{ average_rating.rating|floatformat:1 }} {% trans "out of 5.0" %}</h5> 
-              <div class="stars">
-                {% with ''|center:5 as range %}
-                {% for i in range %}
-                  {% if forloop.counter <= 4.8 %}
-                    <span class="fa fa-star checked"></span>
-                  {% else %}
-                    <span class="fa fa-star"></span>
-                  {% endif %}
-                {% endfor %}
-                {% endwith %}
-              </div>
-            </div>
-
-            <div class="rating-breakdown">
-              <div class="rating-bar">
-                <span>{% trans "5 Star" %}</span>
-                <div class="bar"><div class="fill" style="width: 80%;"></div></div>
-                <span>{% trans "80%" %}</span>
-              </div>
-              <div class="rating-bar">
-                <span>{% trans "4 Star" %}</span>
-                <div class="bar"><div class="fill" style="width: 15%;"></div></div>
-                <span>{% trans "15%" %}</span>
-              </div>
-              <div class="rating-bar">
-                <span>{% trans "3 Star" %}</span>
-                <div class="bar"><div class="fill" style="width: 5%;"></div></div>
-                <span>{% trans "5%" %}</span>
+                <p>{% trans "Shop Address:" %} {{p.shop.address}}</p>
+                <p>{% trans "Contact Seller:" %} {{p.shop.contact}}</p>
+                <p>
+                {% blocktrans count stock_count=p.stock_count|add:0 %}
+                  In Stock: {{ stock_count }} item
+                {% plural %}
+                  In Stock: {{ stock_count }} items
+                {% endblocktrans %}
+                </p>
               </div>
             </div>
           </div>
 
-          <div class="customer-reviews">
-            {% for r in reviews %}
-            <div class="review-card">
-              <div class="review-header">
-                <img src="{% static "static\assets\images\P.png" %}" alt="{% trans 'User' %}"> 
-                <strong>{{ r.user.username|title }}</strong> - <span>{{ r.date|date:"d M, Y" }}</span>
+          <!-- Reviews Tab -->
+          <div class="tab-pane" id="reviews">
+            <div class="reviews-summary">
+              <h4>{% trans "Customer Reviews" %}</h4>
+              <div class="overall-rating">
+                <h5>{{ average_rating.rating|floatformat:1 }} {% trans "out of 5.0" %}</h5>
                 <div class="stars">
-                  {% for s in r.rating|ljust:r.rating %}
-                    <i class="fa fa-star stars"></i>
+                  {% with ''|center:5 as range %}
+                  {% for i in range %}
+                    {% if average_rating.rating and forloop.counter <= average_rating.rating %}
+                      <span class="fa fa-star checked"></span>
+                    {% else %}
+                      <span class="fa fa-star"></span>
+                    {% endif %}
                   {% endfor %}
+                  {% endwith %}
                 </div>
               </div>
-              <p>{{ r.review }}</p>
-            </div>
-            {% empty %}
-            <p>{% trans "No reviews yet. Be the first to review!" %}</p>
-            {% endfor %}
-          </div>
 
-          {% if make_review == True %}
-          {% if user.is_authenticated %}
-          
-            <form class="review-form hide-review-form" id="review-form" action="{% url 'flame:ajax_add_review' p.id  %}" method="POST">
-              <h4>{% trans "Add a Review" %}</h4>
-              {% csrf_token %}
-              <div class="comment-list">
-                {{ review_form.review }}
+              <div class="rating-breakdown">
+                <div class="rating-bar">
+                  <span>{% trans "5 Star" %}</span>
+                  <div class="bar"><div class="fill" style="width: 80%;"></div></div>
+                  <span>{% trans "80%" %}</span>
+                </div>
+                <div class="rating-bar">
+                  <span>{% trans "4 Star" %}</span>
+                  <div class="bar"><div class="fill" style="width: 15%;"></div></div>
+                  <span>{% trans "15%" %}</span>
+                </div>
+                <div class="rating-bar">
+                  <span>{% trans "3 Star" %}</span>
+                  <div class="bar"><div class="fill" style="width: 5%;"></div></div>
+                  <span>{% trans "5%" %}</span>
+                </div>
               </div>
-              <div>
-              {{ review_form.rating }}
+            </div>
+
+            <div class="customer-reviews">
+              {% for r in reviews %}
+              <div class="review-card">
+                <div class="review-header">
+                  <img src="{% static "static\assets\images\P.png" %}" alt="{% trans 'User' %}">
+                  <strong>{{ r.user.username|title }}</strong> - <span>{{ r.date|date:"d M, Y" }}</span>
+                  <div class="stars">
+                    {% for s in r.rating|ljust:r.rating %}
+                      <i class="fa fa-star stars"></i>
+                    {% endfor %}
+                  </div>
+                </div>
+                <p>{{ r.review }}</p>
               </div>
-              {% comment %} <textarea name="comment" placeholder="Write your review..." required></textarea> {% endcomment %}
-              <button type="submit">{% trans "Submit Review" %}</button>
-            </form>
-          
-          {% else %}
-          <p class="login-prompt"><a href="{% url 'userauths:sign-in' %}">{% trans "Login" %}</a> {% trans "to write a review." %}</p>
-          {% endif %}
-          {% endif %}
+              {% empty %}
+              <p>{% trans "No reviews yet. Be the first to review!" %}</p>
+              {% endfor %}
+            </div>
+
+            {% if make_review == True %}
+            {% if user.is_authenticated %}
+
+              <form class="review-form hide-review-form" id="review-form" action="{% url 'flame:ajax_add_review' p.id  %}" method="POST">
+                <h4>{% trans "Add a Review" %}</h4>
+                {% csrf_token %}
+                <div class="comment-list">
+                  {{ review_form.review }}
+                </div>
+                <div>
+                {{ review_form.rating }}
+                </div>
+                <button type="submit" class="cx-btn">{% trans "Submit Review" %}</button>
+              </form>
+
+            {% else %}
+            <p class="login-prompt"><a href="{% url 'userauths:sign-in' %}">{% trans "Login" %}</a> {% trans "to write a review." %}</p>
+            {% endif %}
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Related Products Section -->
+    {% if products %}
+    <div class="compact-related-products pd-related">
+      <div class="cx-section-head">
+        <h2>{% trans "Related Products" %}</h2>
+      </div>
+      <div class="carousel-container cx-grid">
+        {% for p in products %}
+        <a href="{% url 'flame:shop-product-detail' p.shop.shop_id p.p_id  %}" class="related-item cx-product">
+          <div class="product-image cx-product-media">
+            <img src="{{p.image.url}}" alt="{{p.title}}">
+          </div>
+          <div class="product-info cx-product-body">
+            <h5 class="cx-product-title">{{p.title|truncatechars:35}}</h5>
+            <div class="cx-product-foot">
+              <span class="price cx-price">
+                {% if is_myanmar or current_language == 'my' %}
+                {{ p.price|multiply:exchange_rate|floatformat:0|to_myanmar_numerals }} ကျပ်
+                {% else %}
+                ${{ p.price|floatformat:2 }}
+                {% endif %}
+              </span>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
   </div>
 </section>
 
-
-
-<br>
-
 <script>
-
-
 // Tab functionality
-document.querySelectorAll('.tab-btn').forEach(button => {
+document.querySelectorAll('.tab-navigation .tab-btn').forEach(button => {
   button.addEventListener('click', () => {
     const target = document.querySelector(button.dataset.target);
-    
-    // Hide all tab panes
-    document.querySelectorAll('.tab-pane').forEach(pane => {
-      pane.classList.remove('active');
-    });
-    
-    // Remove active class from all buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.classList.remove('active');
-    });
-    
-    // Show selected pane and mark button active
+    if (!target) return;
+
+    document.querySelectorAll('.tab-content .tab-pane').forEach(pane => pane.classList.remove('active'));
+    document.querySelectorAll('.tab-navigation .tab-btn').forEach(btn => btn.classList.remove('active'));
+
     target.classList.add('active');
     button.classList.add('active');
   });
 });
 
 // Image slider functionality
-document.querySelectorAll('.option img').forEach(img => {
+document.querySelectorAll('.pd-gallery .option img').forEach(img => {
   img.addEventListener('click', function() {
     document.querySelector('.main_image img').src = this.src;
+    document.querySelectorAll('.pd-gallery .option img').forEach(i => i.classList.remove('is-active'));
+    this.classList.add('is-active');
   });
 });
 </script>

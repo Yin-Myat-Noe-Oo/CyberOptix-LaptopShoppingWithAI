@@ -13,3 +13,11 @@ build/
 .DS_Store
 
 *.log
+
+# Veras image-search cache
+inferno/.cache/
+
+# Demo video build output and local demo-account credentials
+demo/out/
+demo/shots/
+demo/.demo_credentials

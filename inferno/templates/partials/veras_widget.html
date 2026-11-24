@@ -1,0 +1,33 @@
+{% load static i18n %}
+{# Veras AI shopping assistant - floating widget available on every page #}
+{% get_current_language as VERAS_LANG %}
+<div id="veras" class="veras" data-endpoint="/veras/api/" data-csrf="{{ csrf_token }}" data-lang="{{ VERAS_LANG }}"
+     data-welcome="{% trans "Hi! I'm **Veras**, your AI shopping assistant. Tell me what you'll use your laptop for and your budget, and I'll find the best matches from our shops." %}"
+     data-error="{% trans "Sorry, I couldn't reach the assistant right now. Please try again in a moment." %}"
+     data-match="{% trans "match" %}">
+    <script type="application/json" id="veras-suggestions">["{% trans 'Gaming laptop under $1500' %}", "{% trans 'Laptop for a student under $700' %}", "{% trans 'Best for programming with 16GB RAM' %}", "{% trans 'Show me ThinkPads' %}", "{% trans 'What payment methods do you accept?' %}"]</script>
+    <button type="button" class="veras-fab" id="veras-fab" aria-label="{% trans 'Open AI shopping assistant' %}" aria-expanded="false" aria-controls="veras-panel">
+        <span class="veras-fab-ring"></span>
+        <i class="fas fa-robot veras-fab-open"></i>
+        <i class="fas fa-xmark veras-fab-close"></i>
+    </button>
+
+    <section class="veras-panel" id="veras-panel" role="dialog" aria-label="{% trans 'Veras AI assistant' %}" hidden>
+        <header class="veras-head">
+            <div class="veras-avatar"><i class="fas fa-robot"></i></div>
+            <div class="veras-head-text">
+                <strong>Veras</strong>
+                <span><i class="veras-dot"></i>{% trans "AI shopping assistant" %}</span>
+            </div>
+            <button type="button" class="veras-icon-btn" id="veras-reset" title="{% trans 'New chat' %}" aria-label="{% trans 'New chat' %}"><i class="fas fa-rotate-right"></i></button>
+            <a class="veras-icon-btn" href="{% url 'verasChatbot:chat-page' %}" title="{% trans 'Open full screen' %}" aria-label="{% trans 'Open full screen' %}"><i class="fas fa-up-right-and-down-left-from-center"></i></a>
+        </header>
+        <div class="veras-log" id="veras-log" aria-live="polite"></div>
+        <div class="veras-suggest" id="veras-suggest"></div>
+        <form class="veras-form" id="veras-form" autocomplete="off">
+            <input type="text" id="veras-input" maxlength="500" placeholder="{% trans 'e.g. Gaming laptop under $1500' %}" aria-label="{% trans 'Message' %}">
+            <button type="submit" aria-label="{% trans 'Send' %}"><i class="fas fa-paper-plane"></i></button>
+        </form>
+    </section>
+</div>
+<script src="{% static 'assets/js/veras.js' %}" defer></script>

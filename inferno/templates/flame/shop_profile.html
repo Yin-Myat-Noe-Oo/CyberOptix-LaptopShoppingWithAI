@@ -419,12 +419,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('current-shop-address').textContent = data.shop_address;
                 loadAllCitiesForShipping(); // Refresh shipping rate cities
             } else {
-                alert('Error: ' + data.error);
+                alert('{% trans "Error:" %} ' + data.error);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while updating shop location.');
+            alert('{% trans "An error occurred while updating shop location." %}');
         });
     });
 
@@ -473,12 +473,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert(data.message);
                 location.reload(); // Refresh to show new rate
             } else {
-                alert('Error: ' + data.error);
+                alert('{% trans "Error:" %} ' + data.error);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while adding shipping rate.');
+            alert('{% trans "An error occurred while adding shipping rate." %}');
         });
     });
 
@@ -509,12 +509,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                 '<tr id="no-rates-row"><td colspan="5" class="text-center">{% trans "No shipping rates configured yet." %}</td></tr>';
                         }
                     } else {
-                        alert('Error: ' + data.error);
+                        alert('{% trans "Error:" %} ' + data.error);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('An error occurred while deleting shipping rate.');
+                    alert('{% trans "An error occurred while deleting shipping rate." %}');
                 });
             }
         });

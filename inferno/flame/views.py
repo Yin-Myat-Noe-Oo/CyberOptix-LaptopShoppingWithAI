@@ -2563,6 +2563,7 @@ def cod_payment_view(request, sid):
         return redirect('flame:shop-checkout', sid=sid)
 
 # Profile View
+@login_required
 def customer_profile(request):
     shop_views=Shop.objects.all()
 
@@ -2825,7 +2826,9 @@ def wishlist_view(request):
 
 # Add to wishlist
 def add_to_wishlist(request):
-    shop_views=Shop.objects.all()
+    if not request.user.is_authenticated:
+        return JsonResponse({"bool": False, "login_required": True,
+                             "message": _("Please sign in to use your wishlist.")}, status=401)
     product_id = request.GET['id']
     product = Product.objects.get(id =product_id)
     context={}
@@ -2842,7 +2845,6 @@ def add_to_wishlist(request):
             product=product, 
             user=request.user)
         context = {
-            "shop_views": shop_views,
             "bool" : True,
             "new_item": render_to_string("flame/async/wishlist-item.html", {"w": new_wishlist})
         }
@@ -3423,6 +3425,47 @@ def order_status_api(request, order_number):
 
 # ================================ RECOMMENDATION VIEWS ================================
 
+def _live_recommendations(user, limit=8):
+    """Build recommendation groups on the fly from the user's recent behaviour."""
+    from django.db.models import Count
+    groups = {}
+    recent = list(
+        UserBehavior.objects.filter(user=user, product__isnull=False)
+        .order_by('-timestamp' if hasattr(UserBehavior, 'timestamp') else '-id')
+        .values_list('product_id', flat=True)[:20]
+    )
+    seen = set(recent)
+    if recent:
+        similar = []
+        for pid in dict.fromkeys(recent):
+            try:
+                base = Product.objects.get(id=pid)
+            except Product.DoesNotExist:
+                continue
+            for p in base.get_similar_products(limit=4):
+                if p.id not in seen and p not in similar:
+                    similar.append(p)
+            if len(similar) >= limit:
+                break
+        if similar:
+            groups[_("Similar Products")] = similar[:limit]
+
+    last_search = (UserBehavior.objects.filter(user=user, action='search')
+                   .exclude(search_query='').order_by('-id').values_list('search_query', flat=True).first())
+    if last_search:
+        from flame.recommender import parse_preferences, score_products
+        prefs = parse_preferences(last_search.replace('recommend:', '').replace(':', ' '))
+        if not prefs.is_empty():
+            picks = [p for p, _s, _r in score_products(prefs, limit=limit)]
+            if picks:
+                groups[_("Content-Based")] = picks
+
+    popular = (Product.objects.filter(status=True, in_stock=True)
+               .annotate(n=Count('reviews')).order_by('-n', '-date')[:limit])
+    groups[_("Popular Products")] = list(popular)
+    return groups
+
+
 @login_required
 def user_recommendations_view(request):
     """Show personalized recommendations for user"""
@@ -3442,7 +3485,11 @@ def user_recommendations_view(request):
         
         items = rec_list.recommendationitem_set.all().order_by('rank')[:10]
         recommendation_groups[rec_type].extend([item.product for item in items])
-    
+
+    # Live fallback so the page is useful before `generate_recommendations` has run
+    if not recommendation_groups:
+        recommendation_groups = _live_recommendations(request.user)
+
     context = {
         'recommendation_groups': recommendation_groups,
     }
@@ -4419,101 +4466,56 @@ def add_product(request):
     return render(request, "flame/addproduct.html", context)
 
 def chat_page(request):
-    return render(request, 'flame/chatbot.html.html')
+    from verasChatbot.views import chat_page as veras_chat_page
+    return veras_chat_page(request)
 def recommendation_page(request):
-    recommendations = []
+    """Purpose/budget based recommender over the live product catalogue."""
+    from flame.recommender import PURPOSES, Preferences, score_products, product_to_dict
+    from flame.models import Brand
 
-    if request.method == 'POST':
+    data = request.POST if request.method == "POST" else request.GET
+    purpose = (data.get("purpose") or "").lower().strip()
+    recommendations, error = [], None
+
+    def _num(key):
         try:
-            import pandas as pd
-            from sklearn.preprocessing import MinMaxScaler
-            from sklearn.metrics.pairwise import cosine_similarity
-            import os
-            from django.conf import settings
+            return float(data.get(key) or 0)
+        except (TypeError, ValueError):
+            return 0
 
-            # Try to find the CSV file in the project
-            csv_path = 'products.csv'
-            if not os.path.exists(csv_path):
-                csv_path = os.path.join(settings.BASE_DIR, 'products.csv')
-
-            if not os.path.exists(csv_path):
-                return render(request, 'flame/recommendation.html', {
-                    'recommendations': [],
-                    'error': 'Product data file not found. Please add products.csv to the project.'
-                })
-
-            # Load dataset
-            df = pd.read_csv(csv_path, encoding='latin1')
-
-            # Convert RAM to numeric
-            def ram_to_gb(ram_str):
-                if pd.isna(ram_str):
-                    return 0
-                ram_str = str(ram_str)
-                if 'GB' in ram_str:
-                    return int(ram_str.replace('GB','').strip())
-                elif 'TB' in ram_str:
-                    return int(float(ram_str.replace('TB','').strip())*1024)
-                else:
-                    return 0
-
-            df.columns = df.columns.str.upper().str.strip()
-            df['RAM_Numeric'] = df['RAM'].apply(ram_to_gb)
-
-            # Convert CPU to numeric score
-            cpu_mapping = {'i3':3, 'i5':5, 'i7':7, 'i9':9,
-                           'ryzen 3':3, 'ryzen 5':5, 'ryzen 7':7, 'ryzen 9':9}
-
-            def cpu_to_score(cpu_str):
-                if pd.isna(cpu_str):
-                    return 0
-                cpu_str = cpu_str.lower()
-                for key in cpu_mapping:
-                    if key in cpu_str:
-                        return cpu_mapping[key]
-                return 0
-
-            df['CPU_Numeric'] = df['CPU'].apply(cpu_to_score)
-
-            # Normalize CPU & RAM
-            scaler = MinMaxScaler()
-            df[['CPU_Norm','RAM_Norm']] = scaler.fit_transform(df[['CPU_Numeric','RAM_Numeric']])
-
-            purpose_vectors = {
-                'gaming': {'CPU':8, 'RAM':16},
-                'office': {'CPU':5, 'RAM':8},
-                'business': {'CPU':7, 'RAM':16},
-                'general': {'CPU':5, 'RAM':4}
-            }
-
-            purpose = request.POST.get('purpose','').lower().strip()
-            if purpose in purpose_vectors:
-                target_cpu = purpose_vectors[purpose]['CPU']
-                target_ram = purpose_vectors[purpose]['RAM']
-
-                # Normalize target vector using same scaler
-                target_scaled = scaler.transform([[target_cpu, target_ram]])
-
-                # Compute cosine similarity
-                feature_matrix = df[['CPU_Norm','RAM_Norm']].values
-                similarities = cosine_similarity(feature_matrix, target_scaled).flatten()
-
-                df['SIM_SCORE'] = similarities
-                top_laptops = df.sort_values(by='SIM_SCORE', ascending=False).head(5)
-                recommendations = top_laptops.to_dict('records')
-
-        except ImportError:
-            return render(request, 'flame/recommendation.html', {
-                'recommendations': [],
-                'error': 'Required libraries (pandas, sklearn) not installed.'
-            })
+    prefs = Preferences(
+        purpose=purpose if purpose in PURPOSES else "",
+        budget_max=_num("budget_max"),
+        budget_min=_num("budget_min"),
+        brands=[data.get("brand").lower()] if data.get("brand") else [],
+        min_ram=int(_num("min_ram")),
+        category="laptop",  # this page recommends laptops only
+    )
+    submitted = bool(prefs.purpose or data.get("budget_max") or prefs.brands)
+    if submitted:
+        try:
+            ranked = score_products(prefs, limit=8)
+            recommendations = [product_to_dict(p, s, r) for p, s, r in ranked]
+            if request.user.is_authenticated and ranked:
+                UserBehavior.objects.create(
+                    user=request.user, action="search",
+                    search_query=f"recommend:{prefs.purpose or 'any'}:{prefs.budget_max or ''}",
+                    session_id=request.session.session_key or "",
+                )
         except Exception as e:
-            return render(request, 'flame/recommendation.html', {
-                'recommendations': [],
-                'error': f'Error processing recommendations: {str(e)}'
-            })
+            error = f"Error processing recommendations: {e}"
 
-    return render(request, 'flame/recommendation.html', {'recommendations': recommendations})
+    return render(request, "flame/recommendation.html", {
+        "recommendations": recommendations,
+        "purposes": PURPOSES,
+        "selected": {
+            "purpose": prefs.purpose, "budget_max": int(prefs.budget_max) or "",
+            "brand": data.get("brand", ""), "min_ram": prefs.min_ram or "",
+        },
+        "brands": Brand.objects.all().order_by("title"),
+        "submitted": submitted,
+        "error": error,
+    })
 
 @login_required
 def admindashboard(request):

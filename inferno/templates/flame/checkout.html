@@ -8,8 +8,7 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'assets/css/checkout.css' %}">
 
-<body style="background-color:rgb(21, 40, 56);">
-    <div class="container">
+<div class="co-page">
         <!-- Connection Status Indicator -->
         <div id="connection-status-bar" class="alert alert-info" style="display: none;">
             <div class="d-flex align-items-center">
@@ -23,6 +22,7 @@
 
         <!-- Shop Information Section -->
         {% if shop %}
+        <span class="cx-eyebrow"><i class="fas fa-lock"></i> {% trans "Checkout" %}</span>
         <h2>{% trans "Checking out from" %} {{ shop.title }}</h2>
         <div class="shop-info">
             {% if shop.paypal_email %}
@@ -54,7 +54,7 @@
         <div class="checkout-content">
             <!-- Billing Details -->
             <div class="billing-details">
-                <h3>{% trans "Billing Details" %}</h3>
+                <h3><i class="fas fa-user" style="color:var(--cx-cyan)"></i> {% trans "Billing Details" %}</h3>
                 
                 <form id="billing-form">
                     <input type="text"
@@ -134,7 +134,7 @@
             
             <!-- Order Summary -->
             <div class="order-summary">
-                <h3>{% trans "Your Order" %}</h3>
+                <h3><i class="fas fa-receipt" style="color:var(--cx-cyan)"></i> {% trans "Your Order" %}</h3>
                 
                 <!-- Order Items from cart_items -->
                 <div class="cart-items">
@@ -268,7 +268,7 @@
 
                     <div class="paypal-branding">
                         <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg"
-                             alt="Powered by PayPal">
+                             alt="{% trans 'Powered by PayPal' %}">
                     </div>
 
                     <div id="qr-code" style="width:200px; height:200px; margin:20px auto;"></div>
@@ -280,9 +280,7 @@
                         <i class="fab fa-stripe mr-2"></i> 
                         {% trans "Pay with Stripe" %}
                     </button>
-                    
-                    <br>
-                    
+
                     <!-- KBZPay for Myanmar -->
                     <div class="kbzpay-section mt-3">
                         <div class="payment-divider">
@@ -311,7 +309,7 @@
                                  onerror="this.style.display='none';">
                             <span style="vertical-align: middle;">
                                 {% trans "Pay with KBZPay" %}
-                                <small>(Demo)</small>
+                                <small>{% trans "(Demo)" %}</small>
                                 {% if is_myanmar %}
                                     - {{ cart_total_amount|multiply:exchange_rate|floatformat:0|to_myanmar_numerals }} ကျပ်
                                 {% endif %}
@@ -373,19 +371,13 @@
                     </div>
                 </div>
                     
-                    <br>
-                    
                     <!-- Back Button -->
-                    <button class="back-to-cart">
-                        <a href="{% url 'flame:product-list' %}" 
-                           style="text-decoration: none;color: inherit;">
-                            {% trans "Go back to Explore More" %}
-                        </a>
-                    </button>
+                    <a href="{% url 'flame:product-list' %}" class="back-to-cart co-back">
+                        <i class="fas fa-arrow-left"></i> {% trans "Go back to Explore More" %}
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
     
     <script src="{% static 'assets/js/function.js' %}"></script>
     <script src="https://js.stripe.com/v3/"></script>
@@ -1402,7 +1394,10 @@
         }
 
         // Initialize Stripe
-        const stripe = Stripe('{{ stripe_public_key }}');
+        // Only create the Stripe client when a publishable key is configured: Stripe('') throws,
+        // which used to stop the whole checkout script (address dropdowns, COD toggle...).
+        const STRIPE_KEY = '{{ stripe_public_key|default:"" }}';
+        const stripe = (STRIPE_KEY && window.Stripe) ? Stripe(STRIPE_KEY) : null;
 
         document.addEventListener('DOMContentLoaded', () => {
             // Initialize connection status monitoring
@@ -1570,357 +1565,6 @@
         });
     </script>
     
-    <style>
-    /* Additional styles for better display */
-    .shop-info {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-
-    /* Shipping Address Styles */
-    .shipping-address-section {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        margin: 20px 0;
-        border: 1px solid #e9ecef;
-    }
-
-    .shipping-address-section h4 {
-        margin-bottom: 20px;
-        color: #333;
-        font-weight: 600;
-        border-bottom: 2px solid #3498db;
-        padding-bottom: 10px;
-    }
-
-    .address-field {
-        margin-bottom: 15px;
-    }
-
-    .address-field label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 500;
-        color: #555;
-    }
-
-    .address-field select,
-    .address-field input[type="text"] {
-        width: 100%;
-        padding: 12px 15px;
-        border: 2px solid #e9ecef;
-        border-radius: 6px;
-        font-size: 14px;
-        background: white;
-        transition: all 0.3s ease;
-    }
-
-    .address-field select:focus,
-    .address-field input[type="text"]:focus {
-        outline: none;
-        border-color: #3498db;
-        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
-    }
-
-    .address-field select:disabled {
-        background-color: #f8f9fa;
-        color: #6c757d;
-        cursor: not-allowed;
-        border-color: #dee2e6;
-    }
-
-    .address-field select option {
-        padding: 10px;
-    }
-
-    /* Shipping fee display */
-    #shipping-fee {
-        font-weight: 500;
-    }
-
-    #shipping-fee .text-success {
-        color: #28a745 !important;
-    }
-
-    #shipping-fee .text-info {
-        color: #17a2b8 !important;
-    }
-
-    #shipping-fee small {
-        display: block;
-        margin-top: 3px;
-        font-size: 0.85em;
-    }
-
-    /* Myanmar language specific */
-    html[lang="my"] .shipping-address-section,
-    html[lang="my"] .address-field label,
-    html[lang="my"] .address-field select,
-    html[lang="my"] .address-field input {
-        font-family: 'Padauk', sans-serif;
-    }
-
-    html[lang="my"] #shipping-fee {
-        font-family: 'Padauk', sans-serif;
-    }
-
-    /* Responsive design for address form */
-    @media (max-width: 768px) {
-        .shipping-address-section {
-            padding: 15px;
-            margin: 15px 0;
-        }
-
-        .address-field select,
-        .address-field input[type="text"] {
-            padding: 10px 12px;
-            font-size: 14px;
-        }
-
-        .shipping-address-section h4 {
-            font-size: 1.1em;
-        }
-    }
-    
-    .exchange-rate-info {
-        background: #d1ecf1;
-        border: 1px solid #bee5eb;
-        border-radius: 5px;
-        padding: 10px;
-        margin-top: 10px;
-    }
-    
-    .checkout-item {
-        display: flex;
-        align-items: center;
-        padding: 15px;
-        border-bottom: 1px solid #dee2e6;
-    }
-    
-    .checkout-item img {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
-        margin-right: 15px;
-        border-radius: 4px;
-    }
-    
-    .item-info {
-        flex: 1;
-    }
-    
-    .item-title {
-        font-weight: 500;
-        margin-bottom: 5px;
-    }
-    
-    .item-qty {
-        color: #6c757d;
-        font-size: 0.9em;
-    }
-    
-    .item-total {
-        text-align: right;
-        min-width: 120px;
-    }
-    
-    .order-total-section {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        margin: 20px 0;
-    }
-    
-    .subtotal-row, .shipping-row, .total-row {
-        display: flex;
-        justify-content: space-between;
-        margin: 10px 0;
-    }
-    
-    .total-row {
-        font-size: 1.2em;
-        color: #333;
-    }
-    
-    .payment-notice {
-        padding: 10px 15px;
-        margin: 15px 0;
-        border-radius: 5px;
-    }
-    
-    .payment-buttons {
-        text-align: center;
-        margin-top: 20px;
-    }
-    
-    /* KBZPay Payment Styles */
-    .kbzpay-section {
-        margin: 20px 0;
-        padding: 15px;
-        border: 1px solid #e9ecef;
-        border-radius: 8px;
-        background: #f8f9fa;
-    }
-    
-    .payment-divider {
-        text-align: center;
-        margin: 15px 0;
-        position: relative;
-    }
-    
-    .payment-divider:before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: #dee2e6;
-        z-index: 1;
-    }
-    
-    .payment-divider span {
-        background: #f8f9fa;
-        padding: 0 15px;
-        color: #6c757d;
-        font-size: 0.9em;
-        position: relative;
-        z-index: 2;
-    }
-    
-    .kbzpay-button {
-        transition: all 0.3s ease;
-        font-weight: 500;
-        border-radius: 6px;
-    }
-    
-    .kbzpay-button:hover {
-        background-color: #008a43 !important;
-        border-color: #008a43 !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 166, 81, 0.3);
-    }
-    
-    .kbzpay-button:active {
-        transform: translateY(0);
-    }
-    
-    .kbzpay-info {
-        text-align: center;
-        border-top: 1px solid #dee2e6;
-        padding-top: 10px;
-    }
-    
-    /* Myanmar language specific */
-    html[lang="my"] .order-total,
-    html[lang="my"] .item-total {
-        font-family: 'Padauk', sans-serif;
-    }
-    
-    html[lang="my"] .kbzpay-info {
-        font-family: 'Padauk', sans-serif;
-    }
-    
-    /* Payment Method Selection Styles */
-    .payment-method-selection {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        margin: 20px 0;
-    }
-    
-    .payment-method-options {
-        display: flex;
-        gap: 15px;
-        margin-top: 15px;
-    }
-    
-    .payment-option {
-        flex: 1;
-    }
-    
-    .payment-option input[type="radio"] {
-        display: none;
-    }
-    
-    .payment-option-label {
-        display: block;
-        background: white;
-        border: 2px solid #dee2e6;
-        border-radius: 8px;
-        padding: 15px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        color: #333;
-    }
-    
-    .payment-option-label:hover {
-        border-color: #3498db;
-        background: #f0f8ff;
-    }
-    
-    .payment-option input[type="radio"]:checked + .payment-option-label {
-        border-color: #3498db;
-        background: #e8f4fd;
-        box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
-    }
-    
-    .payment-option-label i {
-        font-size: 2em;
-        margin-bottom: 10px;
-        color: #3498db;
-    }
-    
-    .payment-option-label strong {
-        display: block;
-        margin-bottom: 5px;
-        font-size: 1.1em;
-    }
-    
-    .payment-option-label small {
-        color: #666;
-        font-size: 0.9em;
-    }
-    
-    .cod-info {
-        background: white;
-        border-radius: 8px;
-        padding: 20px;
-    }
-    
-    .cod-info .alert {
-        margin-bottom: 15px;
-    }
-    
-    .cod-info ul {
-        margin-left: 20px;
-    }
-    
-    /* Myanmar language specific for COD */
-    html[lang="my"] .payment-option-label,
-    html[lang="my"] .cod-info {
-        font-family: 'Padauk', sans-serif;
-    }
-    
-    @media (max-width: 768px) {
-        .payment-method-options {
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .payment-option-label {
-            padding: 12px;
-        }
-        
-        .payment-option-label i {
-            font-size: 1.5em;
-        }
-    }
-    </style>
 
     <!-- Include KBZPay Mock JS SDK -->
     <script src="{% static 'js/kbzpay-mock.js' %}"></script>
@@ -1952,7 +1596,7 @@
                 const orderId = button.dataset.orderId;
 
                 if (!orderId || orderId === 'undefined' || orderId === '') {
-                    this.showNotification('Order ID not found. Please refresh the page.', 'error');
+                    this.showNotification('{% trans "Order ID not found. Please refresh the page." %}', 'error');
                     return;
                 }
 
@@ -1961,12 +1605,12 @@
                     this.isProcessing = true;
 
                     // Show connecting notification
-                    this.showNotification('Connecting to KBZPay...', 'info');
+                    this.showNotification('{% trans "Connecting to KBZPay..." %}', 'info');
 
                     const paymentData = await this.initiatePayment(orderId);
 
                     if (paymentData.success) {
-                        this.showNotification('Opening KBZPay payment window...', 'info');
+                        this.showNotification('{% trans "Opening KBZPay payment window..." %}', 'info');
 
                         // Small delay for better UX
                         await this.delay(800);
@@ -2015,17 +1659,17 @@
 
                 switch (result.code) {
                     case 0: // Success
-                        this.showNotification('Payment completed! Verifying...', 'success');
+                        this.showNotification('{% trans "Payment completed! Verifying..." %}', 'success');
                         this.verifyAndRedirect(orderId);
                         break;
 
                     case 1: // Canceled
-                        this.showNotification('Payment was canceled', 'warning');
+                        this.showNotification('{% trans "Payment was canceled" %}', 'warning');
                         this.resetButton(button);
                         break;
 
                     case 2: // Window closed
-                        this.showNotification('Payment window was closed', 'info');
+                        this.showNotification('{% trans "Payment window was closed" %}', 'info');
                         this.resetButton(button);
                         break;
 
@@ -2044,7 +1688,7 @@
                         const status = await this.checkPaymentStatus(orderId);
 
                         if (status.success && status.paid) {
-                            this.showNotification('Payment verified! Redirecting...', 'success');
+                            this.showNotification('{% trans "Payment verified! Redirecting..." %}', 'success');
                             await this.delay(1500);
                             window.location.href = `{% url 'flame:payment-completed' sid %}`;
                             return;
@@ -2052,11 +1696,11 @@
                     }
 
                     // If we get here, verification failed
-                    this.showNotification('Payment verification failed. Please contact support.', 'error');
+                    this.showNotification('{% trans "Payment verification failed. Please contact support." %}', 'error');
 
                 } catch (error) {
                     console.error('Verification error:', error);
-                    this.showNotification('Failed to verify payment status', 'error');
+                    this.showNotification('{% trans "Failed to verify payment status" %}', 'error');
                 }
             }
 
@@ -2083,7 +1727,7 @@
                         const status = await this.checkPaymentStatus(orderId);
                         if (status.success && status.paid) {
                             clearInterval(this.statusCheckInterval);
-                            this.showNotification('Payment confirmed!', 'success');
+                            this.showNotification('{% trans "Payment confirmed!" %}', 'success');
                             this.verifyAndRedirect(orderId);
                         }
                     } catch (error) {
@@ -2249,9 +1893,5 @@
             new KBZPaymentHandler();
         }
     </script>
-</body>
-
-<br><br><br>
-<hr>
 
 {% endblock content %}

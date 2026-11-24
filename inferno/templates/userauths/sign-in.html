@@ -4,9 +4,9 @@
 {% load i18n %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'assets/css/login.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/login.css' %}?v=3">
 
-<main>
+<main class="cx-auth">
 <div class="container">
     <div class="form-container">
         <div class="col-1">
@@ -96,7 +96,7 @@
                                 </g>
                             </svg>
                         </div>
-                        <span class="google-text">Continue with Google</span>
+                        <span class="google-text">{% trans "Continue with Google" %}</span>
                     </a>
                 </div>
                 
@@ -154,7 +154,7 @@ setTimeout(() => {
 {% load i18n %}
 {% block content %}
 
-<link rel="stylesheet" href="{% static 'assets/css/login.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/login.css' %}?v=3">
 <main>
 <div class="container">
     <div class="form-container" style="position:absolute;top:13%">

@@ -1,115 +1,120 @@
 {% extends 'partials/base.html' %}
+{% load i18n %}
 {% load static %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>About</title>
-  <style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background-color: #f5f5f5;
-    color: #333;
-  }
+<style>
+/* Info / policy pages - neon glass */
+.cx-docpage { max-width: 960px; padding: 0 0 24px; }
+.cx-doc-hero { text-align: center; padding: clamp(36px, 6vw, 64px) 0 clamp(20px, 3vw, 32px); }
+.cx-doc-hero h1 {
+  font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 700; margin: 16px 0 10px; line-height: 1.15;
+  background: linear-gradient(180deg, #fff 30%, #b9c6e4); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.cx-doc-hero p { color: var(--cx-muted); max-width: 620px; margin: 0 auto; font-size: 1.05rem; }
+.cx-doc { padding: clamp(22px, 4vw, 44px); line-height: 1.75; color: var(--cx-text); }
+.cx-doc > h1, .cx-doc > h2, .cx-doc > h3 {
+  font-family: var(--cx-display); color: var(--cx-heading); font-weight: 700; letter-spacing: -.01em;
+  margin: 34px 0 12px; display: flex; align-items: center; gap: 12px;
+}
+.cx-doc > h1 { font-size: clamp(1.4rem, 2.6vw, 1.8rem); }
+.cx-doc > h2 { font-size: clamp(1.15rem, 2.2vw, 1.4rem); }
+.cx-doc > h2::before, .cx-doc > h1::before {
+  content: ""; width: 4px; height: 1.1em; border-radius: 4px; background: var(--cx-grad); flex-shrink: 0;
+}
+.cx-doc > :first-child { margin-top: 0; }
+.cx-doc p { color: var(--cx-text); margin: 0 0 14px; opacity: .92; }
+.cx-doc strong { color: var(--cx-heading); font-weight: 600; }
+.cx-doc ol, .cx-doc ul { padding-left: 22px; margin: 0 0 16px; display: grid; gap: 8px; }
+.cx-doc li { color: var(--cx-text); padding-left: 4px; }
+.cx-doc li::marker { color: var(--cx-cyan); font-weight: 700; }
+.cx-doc > br, .cx-doc ul > br { display: none; }
+.cx-doc a { color: var(--cx-cyan); text-decoration: none; }
+.cx-doc a:hover { text-decoration: underline; }
+.cx-doc hr { margin: 28px 0; }
 
-  header {
-    background-color: #2c3e50;
-    padding: 20px;
-    text-align: center;
-    color: white;
-  }
+/* Numbered sections (Services / Terms / Events) */
+.cx-doc .section {
+  padding: 20px 22px; margin-bottom: 16px; border-radius: 14px;
+  background: var(--cx-soft); border: 1px solid var(--cx-border); transition: border-color .25s, transform .25s;
+}
+.cx-doc .section:hover { border-color: rgba(34, 211, 238, .35); transform: translateY(-2px); }
+.cx-doc .section h2 { font-family: var(--cx-display); font-size: clamp(1.05rem, 2vw, 1.25rem); color: var(--cx-heading); font-weight: 600; margin: 0 0 12px; display: flex; align-items: center; gap: 12px; }
+.cx-doc .section h2 i {
+  width: 38px; height: 38px; flex-shrink: 0; border-radius: 11px; display: inline-grid; place-items: center; font-size: .95rem;
+  background: var(--cx-grad-soft); border: 1px solid var(--cx-border-strong); color: var(--cx-cyan);
+}
+.cx-doc .section ul, .cx-doc .section ol { margin-bottom: 0; }
+.cx-doc .section p:last-child { margin-bottom: 0; }
+.cx-doc > p:last-child { margin: 18px 0 0; padding: 14px 16px; border-radius: 12px; background: var(--cx-grad-soft); border: 1px solid var(--cx-border-strong); }
 
-  header h1 {
-    color: white;
-  }
+.cx-doc-foot { text-align: center; color: var(--cx-muted); font-size: .9rem; padding: 22px 0 0; }
 
-  h1 {
-    color: #2c3e50;
-  }
-
-  .container {
-    padding: 40px;
-    max-width: 900px;
-    margin: auto;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  }
-
-  footer {
-    text-align: center;
-    padding: 20px;
-    background-color: #2c3e50;
-    color: white;
-    margin-top: 40px;
-  }
+@media (max-width: 575px) {
+  .cx-doc { line-height: 1.65; }
+  .cx-doc .section { padding: 16px; }
+  .cx-doc .section h2 i { width: 32px; height: 32px; }
+}
 </style>
 
-</head>
-<body>
+<div class="cx-container cx-docpage">
+  <section class="cx-doc-hero">
+    <span class="cx-eyebrow"><i class="fas fa-circle-info"></i> CyberOptix</span>
+    <h1>{% trans "About CyberOptix" %}</h1>
+  </section>
 
-  <header>
-    <h1>About CyberOptix</h1>
+  <div class="cx-doc cx-glass">
+    <h1>{% trans "About CyberOptix" %}</h1>
+    <p> <strong>{% trans "Your Trusted Partner in Tech Empowerment" %}</strong> <br>{% trans "Welcome to CyberOptix, Myanmar’s trusted online store for premium laptops, accessories, and digital essentials. Designed by students, for the people, CyberOptix is more than just an e-commerce platform—it’s a movement to make technology accessible, affordable, and reliable for everyone in Myanmar." %}</p>
     
-  </header>
+    <h2>{% trans "Our Story" %}</h2>
+    <p>{% trans "CyberOptix was born in 2024 as part of a special project by students of the Myanmar Institute of Information Technology (MIIT). Inspired by a vision to bridge the tech gap in our local communities, we transformed a university initiative into a full-fledged startup aimed at modernizing the way people shop for laptops." %}<br>{% trans "What started in a small student lab is now an expanding digital marketplace committed to simplifying the laptop-buying experience across Mandalay, Yangon and beyond." %}</p>
 
-  <div class="container">
-    <h1>About CyberOptix</h1>
-    <p> <strong>Your Trusted Partner in Tech Empowerment</strong> <br>Welcome to CyberOptix, Myanmar’s trusted online store for premium laptops, accessories, and digital essentials. Designed by students, for the people, CyberOptix is more than just an e-commerce platform—it’s a movement to make technology accessible, affordable, and reliable for everyone in Myanmar.</p>
-    
-    <h2>Our Story</h2>
-    <p>CyberOptix was born in 2024 as part of a special project by students of the Myanmar Institute of Information Technology (MIIT). Inspired by a vision to bridge the tech gap in our local communities, we transformed a university initiative into a full-fledged startup aimed at modernizing the way people shop for laptops.<br>What started in a small student lab is now an expanding digital marketplace committed to simplifying the laptop-buying experience across Mandalay, Yangon and beyond.</p>
-
-    <h2>Our Vision</h2>
-    <p>“To become Myanmar’s most trusted gateway to global technology, bridging quality and affordability.”</p>
-    <h2>Our Mission</h2>
+    <h2>{% trans "Our Vision" %}</h2>
+    <p>{% trans "“To become Myanmar’s most trusted gateway to global technology, bridging quality and affordability.”" %}</p>
+    <h2>{% trans "Our Mission" %}</h2>
     <ol>
-      <li>Deliver cutting-edge devices with verified international warranties</li>
-      <li>Simplify tech imports through MIIT-supported logistics</li>
-      <li>Build a secure PayPal-based payment ecosystem (local integrations coming soon)</li>
-      <li>Offer expert tech guidance in English/(Burmese coming soon)</li>
+      <li>{% trans "Deliver cutting-edge devices with verified international warranties" %}</li>
+      <li>{% trans "Simplify tech imports through MIIT-supported logistics" %}</li>
+      <li>{% trans "Build a secure PayPal-based payment ecosystem (local integrations coming soon)" %}</li>
+      <li>{% trans "Offer expert tech guidance in English/(Burmese coming soon)" %}</li>
     </ol>
 
-    <h2>What Sets Us Apart</h2>
-    <p>⭐️ Pros      🔶 How It Helps You Curated Selection Choose from a growing range of quality laptops, from student-friendly models to high-end gaming systems.Affordable Pricing Built by students, we understand budget constraints—so we prioritize offering laptops that balance price and performance.Helpful Buying Guides Not a tech expert? No problem. We provide friendly guides and honest reviews to help you make informed decisions. Nationwide Delivery No matter where you live, we deliver to your doorstep,ensuring access to tech isn’t limited by geography.Local Support Team Have questions? Our MIIT-trained support team is ready to help with real, local understanding of your needs.
+    <h2>{% trans "What Sets Us Apart" %}</h2>
+    <p>{% trans "⭐️ Pros 🔶 How It Helps You Curated Selection Choose from a growing range of quality laptops, from student-friendly models to high-end gaming systems.Affordable Pricing Built by students, we understand budget constraints—so we prioritize offering laptops that balance price and performance.Helpful Buying Guides Not a tech expert? No problem. We provide friendly guides and honest reviews to help you make informed decisions. Nationwide Delivery No matter where you live, we deliver to your doorstep,ensuring access to tech isn’t limited by geography.Local Support Team Have questions? Our MIIT-trained support team is ready to help with real, local understanding of your needs." %}
 </p>
-    <h2>We’re Not Perfect (Yet!)</h2>
+    <h2>{% trans "We’re Not Perfect (Yet!)" %}</h2>
 
-    <p>As a young, growing startup, we believe in transparency. Here's where we’re still improving:</p><br>
-    <p> -Smaller Inventory on Rare Models<br>
-    Since we work with limited warehousing, some high-end or ultra-niche laptops may run out fast. But we’re actively working to expand our catalog and offer pre-orders.</p>
+    <p>{% trans "As a young, growing startup, we believe in transparency. Here's where we’re still improving:" %}</p><br>
+    <p> {% trans "-Smaller Inventory on Rare Models" %}<br>
+    {% trans "Since we work with limited warehousing, some high-end or ultra-niche laptops may run out fast. But we’re actively working to expand our catalog and offer pre-orders." %}</p>
 
-    <p>   -Occasional Delivery Delays<br>
-     While we aim for fast shipping, some remote regions may face slight delays due to courier limitations. We’re working closely with logistics partners to improve this.
+    <p>   {% trans "-Occasional Delivery Delays" %}<br>
+     {% trans "While we aim for fast shipping, some remote regions may face slight delays due to courier limitations. We’re working closely with logistics partners to improve this." %}
 </p>
- <p>  -Limited Payment Flexibility<br>
-    Currently, we accept major cards, PayPal, and mobile wallets. We’re actively developing more local-friendly options like bank transfers and installment plans.</p>
+ <p>  {% trans "-Limited Payment Flexibility" %}<br>
+    {% trans "Currently, we accept major cards, PayPal, and mobile wallets. We’re actively developing more local-friendly options like bank transfers and installment plans." %}</p>
 
-    <h2>Our Promise</h2>
+    <h2>{% trans "Our Promise" %}</h2>
     <p>
-      <strong>Genuine Products </strong>– All laptops are sourced from trusted distributors with valid warranties.
+      <strong>{% trans "Genuine Products" %} </strong>{% trans "– All laptops are sourced from trusted distributors with valid warranties." %}
     </p><br>
     <p>
-      <strong>7-Day Return Policy </strong>– Not happy with your purchase? Return it within 7 days—no hassle.
+      <strong>{% trans "7-Day Return Policy" %} </strong>{% trans "– Not happy with your purchase? Return it within 7 days—no hassle." %}
     </p><br>
      <p>
-      <strong> Ethical Business </strong>– No aggressive upselling or shady tactics. Just honest pricing and clear choices.
+      <strong> {% trans "Ethical Business" %} </strong>{% trans "– No aggressive upselling or shady tactics. Just honest pricing and clear choices." %}
     </p><br>
     <p>
-      <strong>  Giving Back </strong>– A portion of our revenue goes toward tech education programs led by MIIT students across Myanmar.
+      <strong>  {% trans "Giving Back" %} </strong>{% trans "– A portion of our revenue goes toward tech education programs led by MIIT students across Myanmar." %}
     </p><br>
-    <h1>Join the CyberOptix Family</h1>
-    <p>Whether you’re a student preparing for your next semester, a remote worker building your digital career, or a gamer chasing performance, CyberOptix is your reliable tech partner.<br><strong>Thank you for supporting this student-powered startup. Together, we’re building a smarter, more connected Myanmar.
+    <h1>{% trans "Join the CyberOptix Family" %}</h1>
+    <p>{% trans "Whether you’re a student preparing for your next semester, a remote worker building your digital career, or a gamer chasing performance, CyberOptix is your reliable tech partner." %}<br><strong>{% trans "Thank you for supporting this student-powered startup. Together, we’re building a smarter, more connected Myanmar." %}
 </strong> </p>
-<h1><strong>—TEAM INFERNO</strong></h1>
+<h1><strong>{% trans "—TEAM INFERNO" %}</strong></h1>
   </div>
 
-  <footer>
-    &copy; Thank you for joining CyberOptix Family.
-  </footer>
-
-</body>
-</html>
+  <div class="cx-doc-foot">
+    {% trans "&copy; Thank you for joining CyberOptix Family." %}
+  </div>
+</div>
 {% endblock %}

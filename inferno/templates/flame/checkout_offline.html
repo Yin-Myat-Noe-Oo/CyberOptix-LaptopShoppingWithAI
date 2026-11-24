@@ -6,10 +6,10 @@
 {% load i18n %}
 
 {% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'assets/css/cyber-theme.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'assets/css/checkout.css' %}">
 
-<body style="background-color:rgb(21, 40, 56);">
-    <div class="container">
+<div class="co-page">
         <!-- Offline Mode Notice -->
         <div class="alert alert-info offline-mode-notice">
             <div class="d-flex align-items-center">
@@ -23,6 +23,7 @@
 
         <!-- Shop Information Section -->
         {% if shop %}
+        <span class="cx-eyebrow"><i class="fas fa-lock"></i> {% trans "Checkout" %}</span>
         <h2>{% trans "Checking out from" %} {{ shop.title }}</h2>
         <div class="shop-info">
             {% if shop.paypal_email %}
@@ -214,7 +215,7 @@
                         </div>
 
                         <button type="button"
-                                class="btn btn-success btn-lg"
+                                class="btn btn-success btn-lg co-btn"
                                 id="offline-cod-submit"
                                 style="width: 100%; margin-top: 15px;">
                             <i class="fas fa-save me-2"></i>
@@ -223,19 +224,13 @@
                     </div>
                 </div>
 
-                    <br>
-
                     <!-- Back Button -->
-                    <button class="back-to-cart">
-                        <a href="{% url 'flame:product-list' %}"
-                           style="text-decoration: none;color: inherit;">
-                            {% trans "Go back to Explore More" %}
-                        </a>
-                    </button>
+                    <a href="{% url 'flame:product-list' %}" class="back-to-cart co-back">
+                        <i class="fas fa-arrow-left"></i> {% trans "Go back to Explore More" %}
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
 
     <script src="{% static 'assets/js/function.js' %}"></script>
 
@@ -291,7 +286,7 @@
                 const container = document.getElementById('offline-cart-items');
 
                 if (cartItems.length === 0) {
-                    container.innerHTML = '<p class="text-center text-muted">No items in cart</p>';
+                    container.innerHTML = '<p class="text-center text-muted">{% trans "No items in cart" %}</p>';
                     return;
                 }
 
@@ -348,10 +343,10 @@
                 if (this.isMyanmar) {
                     const subtotalMmk = subtotal * this.exchangeRate;
                     subtotalElement.innerHTML = `$${subtotal.toFixed(2)} <small>(${subtotalMmk.toFixed(0)} ကျပ်)</small>`;
-                    totalElement.innerHTML = `$${subtotal.toFixed(2)} <small class="d-block">(${subtotalMmk.toFixed(0)} ကျပ် + shipping)</small>`;
+                    totalElement.innerHTML = `$${subtotal.toFixed(2)} <small class="d-block">(${subtotalMmk.toFixed(0)} ကျပ် + {% trans "shipping" %})</small>`;
                 } else {
                     subtotalElement.textContent = `$${subtotal.toFixed(2)}`;
-                    totalElement.innerHTML = `$${subtotal.toFixed(2)} <small class="d-block text-muted">(+ shipping fee)</small>`;
+                    totalElement.innerHTML = `$${subtotal.toFixed(2)} <small class="d-block text-muted">(+ {% trans "shipping fee" %})</small>`;
                 }
             }
 
@@ -415,7 +410,7 @@
                 });
 
                 if (!isValid) {
-                    this.showNotification('Please fill in all required fields', 'error');
+                    this.showNotification('{% trans "Please fill in all required fields" %}', 'error');
                     return;
                 }
 
@@ -430,7 +425,7 @@
                     }
                 } catch (error) {
                     console.error('Error saving offline order:', error);
-                    this.showNotification('Failed to save order. Please try again.', 'error');
+                    this.showNotification('{% trans "Failed to save order. Please try again." %}', 'error');
                 }
             }
 
@@ -536,45 +531,5 @@
         });
     </script>
 
-    <style>
-    .offline-mode-notice {
-        margin-bottom: 20px;
-        border-left: 4px solid #17a2b8;
-        background-color: #d1ecf1;
-        border-color: #bee5eb;
-    }
-
-    .payment-option.active .payment-option-label.selected {
-        border-color: #28a745;
-        background: #d4edda;
-        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
-    }
-
-    .field-error {
-        animation: shake 0.3s ease-in-out;
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-    }
-
-    .address-field small.text-muted {
-        display: block;
-        margin-top: 5px;
-        font-style: italic;
-    }
-
-    /* Myanmar language specific */
-    html[lang="my"] .offline-mode-notice,
-    html[lang="my"] .field-error {
-        font-family: 'Padauk', sans-serif;
-    }
-    </style>
-</body>
-
-<br><br><br>
-<hr>
 
 {% endblock content %}

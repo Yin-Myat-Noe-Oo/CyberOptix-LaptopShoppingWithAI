@@ -1,0 +1,34 @@
+{% load i18n myanmar_filter %}
+<article class="cx-product card" style="background:var(--cx-surface)!important;">
+    <input type="hidden" value="1" class="product-quantity-{{ product.id }}">
+    <input type="hidden" class="product-pid-{{ product.id }}" value="{{ product.p_id }}">
+    <input type="hidden" class="product-image-{{ product.id }}" value="{{ product.image.url }}">
+    <input type="hidden" class="product-id-{{ product.id }}" value="{{ product.id }}">
+    <input type="hidden" class="product-title-{{ product.id }}" value="{{ product.title }}">
+
+    {% if show_discount and product.get_percentage > 0 %}
+        <span class="cx-badge">-{% if current_language == 'my' %}{{ product.get_percentage|floatformat:0|to_myanmar_numerals }}{% else %}{{ product.get_percentage|floatformat:0 }}{% endif %}%</span>
+    {% elif badge %}
+        <span class="cx-badge cx-badge-match">{{ badge }}</span>
+    {% endif %}
+    <button class="cx-fav favorite-btn add-to-wishlist" data-product-item="{{ product.id }}" aria-label="{% trans 'Add to wishlist' %}">
+        <i class="far fa-heart"></i>
+    </button>
+
+    {% if product.shop %}{% url 'flame:shop-product-detail' product.shop.shop_id product.p_id as detail_url %}{% else %}{% url 'flame:product-detail' product.p_id as detail_url %}{% endif %}
+    <a href="{{ detail_url }}" class="cx-product-media">
+        <img src="{{ product.image.url }}" alt="{{ product.title }}" loading="lazy">
+    </a>
+    <div class="cx-product-body">
+        <h3 class="cx-product-title">{{ product.title }}</h3>
+        <div class="cx-product-meta">
+            {% if product.cpu and product.cpu != 'None' and product.cpu != 'intel' %}<span class="cx-chip"><i class="fas fa-microchip"></i>{{ product.cpu }}</span>{% endif %}
+            {% if product.ram and product.ram != 'None' %}<span class="cx-chip"><i class="fas fa-memory"></i>{{ product.ram }}</span>{% endif %}
+            {% if product.shop %}<span class="cx-chip"><i class="fas fa-store"></i>{{ product.shop.title }}</span>{% endif %}
+        </div>
+        <div class="cx-product-foot">
+            <div class="price-container">{% include 'flame/price_display.html' with product=product %}</div>
+            <a href="{{ detail_url }}" class="cx-btn-sm">{% trans "View" %}</a>
+        </div>
+    </div>
+</article>

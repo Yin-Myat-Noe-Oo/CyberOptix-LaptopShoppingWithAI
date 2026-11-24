@@ -2,104 +2,96 @@
 {% load static %}
 {% load i18n %}
 {% block content %}
+<link rel="stylesheet" href="{% static 'assets/css/product-list.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'assets/css/category.css' %}">
 
-	<link rel="stylesheet" type="text/css" href="{% static 'assets/css/category.css' %}">
+<main class="cx-container pl-bottom" id="product-page-body">
 
-
-<body>
-	<div>
-	<!-- MAIN BODY -->
-	<div id="product-page-body">
-		<div id="product-top-container">
-			<div id="product-top-wrapper">
-				<div id="product-top-text-section">
-					<h1>{% trans "Latest Trendings" %}</h1>
-					<h2>{% trans "Best Collections" %}</h2>
-					<p>
-						{% blocktrans %}
+  <!-- Top section -->
+  <section class="cat-hero cx-glass" id="product-top-container">
+    <div id="product-top-text-section">
+      <span class="cx-eyebrow"><i class="fas fa-fire"></i> {% trans "Best Collections" %}</span>
+      <h1 class="cx-gradient-text">{% trans "Latest Trendings" %}</h1>
+      <h2>{% trans "Best Collections" %}</h2>
+      <p>
+        {% blocktrans %}
 							Introducing the latest trending categories: sleek design, and best quality.
 						{% endblocktrans %}
-					</p>
-					<a href="#">
-						<button class="blue-button">
-          <a href="{% url 'flame:product-list' %}" style="text-decoration:none;color: #4A5C6A;"class="filter-option {% if active_brand == '' or active_brand == 'Shops' %}active{% endif %}">{% trans "Shops" %}</a><br> 
-						</button>
-					</a>
-				</div>
-				<div id="product-top-image-section">
-					<img src="{% static 'assets/images/category1.jpg' %}" alt="Large Headphone">
-				</div>
-			</div>
-		</div>
-		<!--  END OF TOP SECTION -->
-		<!-- PRODUCT CATEGORIES -->
-		<div id="product-category container">
-			<div id="product-category-text">
-				<span class="blue-line"></span>
-				<span class="section-category-text">{{categories.count}}&nbsp;{% trans "Categories" %}</span>
-			</div>
-            
-			<div id='product-category-wrapper'>
-					<div class="product-category">
-						<div class="product-category-image-section">
-						<img src="{% static 'assets/images/laptop.png' %}">
-						</div>
-						<div class="product-category-desc-section">
+      </p>
+      <a href="{% url 'flame:product-list' %}" class="btn cx-btn filter-option {% if active_brand == '' or active_brand == 'Shops' %}active{% endif %}">
+        <i class="fas fa-store me-2"></i>{% trans "Shops" %}
+      </a>
+    </div>
+    <div class="cat-hero-icons" aria-hidden="true">
+      <span><i class="fas fa-laptop"></i></span>
+      <span><i class="fas fa-desktop"></i></span>
+      <span><i class="fas fa-headphones"></i></span>
+    </div>
+  </section>
 
-						<span class="product-category-type">
-											<a href="{% url 'flame:product-list' %}?category=Laptop" style="text-decoration: none;color:white;"name="Laptop" class="filter-option {% if active_category == 'Laptop' %}active{% endif %}">{% trans "Laptop"%}</a><br>
+  <!-- Product categories -->
+  <section id="product-category">
+    <div class="cx-section-head cat-count-head" id="product-category-text">
+      <div>
+        <span class="cx-eyebrow section-category-text"><i class="fas fa-layer-group"></i> {{ categories.count }}&nbsp;{% trans "Categories" %}</span>
+      </div>
+    </div>
 
-						</span>
-						<span class="product-category-number">
-							  {% blocktrans count count=laptop_count %}
+    <div class="pl-cats" id="product-category-wrapper">
+      <div class="pl-cat cx-glass product-category">
+        <div class="pl-cat-media product-category-image-section">
+          <img src="{% static 'assets/images/laptop.png' %}" alt="{% trans "Laptop" %}" loading="lazy">
+        </div>
+        <div class="pl-cat-body product-category-desc-section">
+          <span class="product-category-type">
+            <a href="{% url 'flame:product-list' %}?category=Laptop" name="Laptop" class="filter-option {% if active_category == 'Laptop' %}active{% endif %}">{% trans "Laptop" %}</a>
+          </span>
+          <span class="cx-chip product-category-number">
+            {% blocktrans count count=laptop_count %}
         {{ count }} item
     {% plural %}
         {{ count }} items
     {% endblocktrans %}
-						</span>
-						</div>
-					</div>
-				</a>
-					<div class="product-category">
-					<div class="product-category-image-section">
-						<img src="{% static 'assets/images/desktop.jpg' %}">
-					</div>
-					<div class="product-category-desc-section">
-						<span class="product-category-type">
-											<a href="{% url 'flame:product-list' %}?category=Desktop" style="text-decoration: none;color:white;"name="Desktop" class="filter-option {% if active_category == 'Desktop' %}active{% endif %}">{% trans "Desktop" %}</a><br>
-						</span>
-						<span class="product-category-number">
-                            {% blocktrans count count=desktop_count %}
+          </span>
+        </div>
+      </div>
+
+      <div class="pl-cat cx-glass product-category">
+        <div class="pl-cat-media product-category-image-section">
+          <img src="{% static 'assets/images/desktop.jpg' %}" alt="{% trans "Desktop" %}" loading="lazy" style="object-fit:cover;padding:0;">
+        </div>
+        <div class="pl-cat-body product-category-desc-section">
+          <span class="product-category-type">
+            <a href="{% url 'flame:product-list' %}?category=Desktop" name="Desktop" class="filter-option {% if active_category == 'Desktop' %}active{% endif %}">{% trans "Desktop" %}</a>
+          </span>
+          <span class="cx-chip product-category-number">
+            {% blocktrans count count=desktop_count %}
                 {{ count }} item
             {% plural %}
                 {{ count }} items
             {% endblocktrans %}
-						</span>
-					</div>
-				</div>
-				</a>
-				<div class="product-category">
-					<div class="product-category-image-section">
-						<img src="{% static 'assets/images/all.png' %}">
-					</div>
-					<div class="product-category-desc-section">
-						<span class="product-category-type">
-											<a href="{% url 'flame:product-list' %}?category=Accessories" style="text-decoration: none;color:white;"name="Accessories" class="filter-option {% if active_category == 'Accessories' %}active{% endif %}">{% trans "Accessories" %}</a><br>
-						</span>
-						<span class="product-category-number">
-                            {% blocktrans count count=accessories_count %}
+          </span>
+        </div>
+      </div>
+
+      <div class="pl-cat cx-glass product-category">
+        <div class="pl-cat-media product-category-image-section">
+          <img src="{% static 'assets/images/all.png' %}" alt="{% trans "Accessories" %}" loading="lazy">
+        </div>
+        <div class="pl-cat-body product-category-desc-section">
+          <span class="product-category-type">
+            <a href="{% url 'flame:product-list' %}?category=Accessories" name="Accessories" class="filter-option {% if active_category == 'Accessories' %}active{% endif %}">{% trans "Accessories" %}</a>
+          </span>
+          <span class="cx-chip product-category-number">
+            {% blocktrans count count=accessories_count %}
                 {{ count }} item
             {% plural %}
                 {{ count }} items
             {% endblocktrans %}
-						</span>
-					</div>
-				</div>
-				</a>
-			</div>
-		</div>
-		<br>
-		 <!-- end of product categories -->
-	</div>
-	</body>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
 {% endblock content %}

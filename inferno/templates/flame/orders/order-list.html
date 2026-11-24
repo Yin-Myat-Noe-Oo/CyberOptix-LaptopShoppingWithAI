@@ -3,11 +3,14 @@
 {% load i18n %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="cx-container cx-orders">
     <div class="row">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>{% trans "My Orders" %}</h2>
+            <div class="cx-page-head">
+                <div>
+                    <span class="cx-eyebrow"><i class="fas fa-bag-shopping"></i> {% trans "Orders" %}</span>
+                    <h2>{% trans "My Orders" %}</h2>
+                </div>
                 <div class="order-stats">
                     <span class="badge bg-primary me-2">
                         {% trans "Total Orders" %}: {{ page_obj.paginator.count }}
@@ -16,7 +19,7 @@
             </div>
 
             <!-- Order Filters -->
-            <div class="card mb-4">
+            <div class="card mb-4 order-filter">
                 <div class="card-body">
                     <form method="get" class="row g-3">
                         <div class="col-md-4">
@@ -25,12 +28,12 @@
                                 <option value="">{% trans "All Orders" %}</option>
                                 {% for value, label in status_choices %}
                                     <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>
-                                        {{ label }}
+                                        {% trans label %}
                                     </option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-2 d-flex align-items-end">
+                        <div class="col-md-3 d-flex align-items-end">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-filter"></i> {% trans "Filter" %}
                             </button>
@@ -57,7 +60,7 @@
                                     </div>
                                     <div class="text-end">
                                         <span class="badge bg-{% if order.product_status == 'delivered' %}success{% elif order.product_status == 'cancelled' %}danger{% elif order.product_status == 'processing' %}warning{% else %}primary{% endif %}">
-                                            {{ order.get_product_status_display }}
+                                            {% trans order.get_product_status_display %}
                                         </span>
                                         <div class="mt-1">
                                             <strong class="text-primary">${{ order.total_amount|floatformat:2 }}</strong>
@@ -71,9 +74,9 @@
                                                 {% for item in order.cartorderitem_set.all|slice:":3" %}
                                                     <div class="d-flex align-items-center mb-2">
                                                         <img src="{{ item.image }}" alt="{{ item.item }}" 
-                                                             class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                                             class="rounded me-3 cx-thumb" style="width: 56px; height: 56px; object-fit: contain;">
                                                         <div>
-                                                            <div class="fw-bold">{{ item.item }}</div>
+                                                            <div class="fw-bold order-item-title">{{ item.item }}</div>
                                                             <small class="text-muted">
                                                                 {% trans "Qty" %}: {{ item.qty }} × ${{ item.price }}
                                                             </small>
@@ -110,8 +113,8 @@
                                     </div>
 
                                     <!-- Order Progress Bar -->
-                                    <div class="mt-3">
-                                        <div class="progress" style="height: 8px;">
+                                    <div class="mt-3 order-progress">
+                                        <div class="progress" style="height: 6px;">
                                             <div class="progress-bar" role="progressbar" 
                                                  style="width: {{ order.get_order_progress }}%"
                                                  aria-valuenow="{{ order.get_order_progress }}" 
@@ -130,7 +133,7 @@
 
                 <!-- Pagination -->
                 {% if page_obj.has_other_pages %}
-                    <nav aria-label="Page navigation">
+                    <nav aria-label="{% trans 'Page navigation' %}">
                         <ul class="pagination justify-content-center">
                             {% if page_obj.has_previous %}
                                 <li class="page-item">
@@ -163,8 +166,8 @@
                     </nav>
                 {% endif %}
             {% else %}
-                <div class="text-center py-5">
-                    <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                <div class="cx-empty">
+                    <i class="fas fa-shopping-bag cx-empty-icon"></i>
                     <h4>{% trans "No Orders Yet" %}</h4>
                     <p class="text-muted">{% trans "You haven't placed any orders yet. Start shopping to see your orders here." %}</p>
                     <a href="{% url 'flame:product-list' %}" class="btn btn-primary">
@@ -177,21 +180,110 @@
 </div>
 
 <style>
-.order-card {
-    border: 1px solid #e0e0e0;
-    transition: box-shadow 0.3s ease;
+/* ===== Orders - neon glass (shared by order list / detail / track / cancel / return) ===== */
+.cx-orders { padding: clamp(24px, 4vw, 44px) 0 56px; }
+.cx-orders .cx-page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+.cx-orders .cx-page-head h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 700; margin: 12px 0 4px; color: var(--cx-heading); display: flex; align-items: center; gap: 12px; }
+.cx-orders .cx-page-head p { color: var(--cx-muted); margin: 0; }
+.cx-orders .card { overflow: hidden; }
+.cx-orders .card-header { padding: 16px 20px; }
+.cx-orders .card-header h4, .cx-orders .card-header h5 { font-family: var(--cx-display); color: var(--cx-heading); font-weight: 600; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; }
+.cx-orders .card-header h4 { font-size: 1.25rem; }
+.cx-orders .card-header h5 > i, .cx-orders .card-header h4 > i { color: var(--cx-cyan); }
+.cx-orders .card-body { padding: 20px; }
+.cx-orders h6 { color: var(--cx-heading); font-weight: 600; font-family: var(--cx-font); font-size: .82rem; text-transform: uppercase; letter-spacing: .08em; }
+.cx-orders .card-body h6.mb-1, .cx-orders .timeline-content h6, .cx-orders .order-item-title { text-transform: none; letter-spacing: 0; font-size: .98rem; }
+.cx-orders p strong { color: var(--cx-heading); font-weight: 600; }
+.cx-orders .text-primary { color: var(--cx-cyan) !important; }
+.cx-orders .text-success { color: var(--cx-green) !important; }
+.cx-orders .text-warning { color: var(--cx-amber) !important; }
+.cx-orders .text-danger { color: var(--cx-red) !important; }
+.cx-orders .lead { color: var(--cx-text); }
+.cx-orders hr { margin: 14px 0; }
+
+/* Thumbnails */
+.cx-orders .cx-thumb, .cx-orders .order-items img, .cx-orders .table img, .cx-orders .card-body img.rounded {
+  object-fit: contain !important; background: radial-gradient(circle at 50% 40%, var(--cx-surface-2), var(--cx-bg-2));
+  border: 1px solid var(--cx-border); border-radius: 10px !important; padding: 4px;
 }
 
-.order-card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+/* Progress */
+.cx-orders .progress { background: var(--cx-soft-2); border-radius: 999px; overflow: hidden; }
+.cx-orders .progress-bar { background: var(--cx-grad) !important; border-radius: 999px; box-shadow: 0 0 12px rgba(34, 211, 238, .4); }
+
+/* Coloured card headers (cancel / return) */
+.cx-orders .card-header.bg-danger { background: linear-gradient(135deg, rgba(248, 113, 113, .18), rgba(236, 72, 153, .12)) !important; border-bottom: 1px solid rgba(248, 113, 113, .3) !important; }
+.cx-orders .card-header.bg-danger h4 i { color: var(--cx-red); }
+.cx-orders .card-header.bg-warning { background: linear-gradient(135deg, rgba(251, 191, 36, .18), rgba(249, 115, 22, .1)) !important; border-bottom: 1px solid rgba(251, 191, 36, .3) !important; }
+.cx-orders .card-header.bg-warning h4, .cx-orders .card-header.bg-warning { color: #fff !important; }
+.cx-orders .card-header.bg-warning h4 i { color: var(--cx-amber); }
+
+/* Extra outline buttons not covered by the theme */
+.cx-orders .btn-outline-info, .cx-orders .btn-outline-warning {
+  background: var(--cx-soft) !important; border: 1px solid var(--cx-border-strong) !important; color: var(--cx-text) !important;
+}
+.cx-orders .btn-outline-info i { color: var(--cx-cyan); }
+.cx-orders .btn-outline-warning i { color: var(--cx-amber); }
+.cx-orders .btn-outline-info:hover, .cx-orders .btn-outline-warning:hover { border-color: var(--cx-cyan) !important; color: #fff !important; box-shadow: var(--cx-glow); }
+.cx-orders .btn-sm { padding: 7px 14px; font-size: .85rem; }
+.cx-orders .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* Alerts inside order pages */
+.cx-orders .alert { padding: 16px 18px; }
+.cx-orders .alert h5, .cx-orders .alert h6 { color: inherit; font-family: var(--cx-display); font-size: 1rem; display: flex; gap: 8px; align-items: center; text-transform: none; letter-spacing: 0; }
+.cx-orders .alert-warning { border-left: 4px solid var(--cx-amber); }
+.cx-orders .alert-info { border-left: 4px solid var(--cx-cyan); }
+
+/* Timeline (detail + track) */
+.cx-orders .timeline { position: relative; padding-left: 34px; }
+.cx-orders .timeline::before { content: ""; position: absolute; left: 13px; top: 6px; bottom: 6px; width: 2px; background: linear-gradient(var(--cx-cyan), var(--cx-border-strong) 40%); }
+.cx-orders .timeline-item { position: relative; margin-bottom: 18px; }
+.cx-orders .timeline-item:last-child { margin-bottom: 0; }
+.cx-orders .timeline-marker {
+  position: absolute; left: -34px; top: 10px; width: 28px; height: 28px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 8px; color: var(--cx-muted);
+  background: var(--cx-surface-solid) !important; border: 2px solid var(--cx-border-strong);
+}
+.cx-orders .timeline-item.active .timeline-marker { background: var(--cx-grad) !important; border-color: transparent; color: var(--cx-heading); box-shadow: 0 0 0 5px rgba(34, 211, 238, .14); }
+.cx-orders .timeline-content { padding: 14px 16px; border-radius: 12px; background: var(--cx-soft); border: 1px solid var(--cx-border); }
+.cx-orders .timeline-item.active .timeline-content { border-color: rgba(34, 211, 238, .35); }
+.cx-orders .timeline-content p { color: var(--cx-text); }
+
+/* Empty state */
+.cx-orders .cx-empty i.cx-empty-icon { font-size: 2.4rem; margin-bottom: 14px; background: var(--cx-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.cx-orders .cx-empty h4 { color: var(--cx-heading); }
+
+@media (max-width: 575px) {
+  .cx-orders .card-header, .cx-orders .card-body { padding: 14px; }
+  .cx-orders .cx-page-head { align-items: flex-start; }
 }
 
-.progress-bar {
-    background-color: #4A5C6A;
+/* Order list */
+.order-stats .badge { font-size: .85rem; padding: 8px 14px; border-radius: 999px; }
+.order-filter .form-label { color: var(--cx-muted); font-size: .82rem; }
+.order-filter .form-select { height: 46px; }
+.order-filter .btn { height: 46px; padding: 0 22px; }
+.order-card { transition: transform .25s, border-color .25s, box-shadow .25s; }
+.order-card:hover { transform: translateY(-2px); border-color: rgba(34, 211, 238, .4) !important; box-shadow: 0 18px 50px rgba(0, 0, 0, .45), 0 0 0 1px rgba(34, 211, 238, .2) !important; }
+.order-card .card-header { flex-wrap: wrap; gap: 10px; }
+.order-card .card-header h5 { font-family: ui-monospace, Menlo, monospace; font-size: 1rem; }
+.order-card .card-header strong.text-primary { font-size: 1.15rem; color: #fff !important; }
+.order-card .badge { font-size: .78rem; padding: 6px 10px; border-radius: 999px; }
+.order-items .d-flex { padding: 8px; border-radius: 12px; transition: background .2s; }
+.order-items .d-flex:hover { background: var(--cx-soft); }
+.order-progress small { display: block; margin-top: 6px; font-size: .78rem; }
+@media (max-width: 767px) {
+  .order-card .col-md-4.text-end { text-align: left !important; margin-top: 12px; }
 }
 
-.badge {
-    font-size: 0.85em;
+/* The theme paints every .card .btn with the gradient; restore secondary / danger buttons inside cards */
+.cx-orders .card .btn-outline-primary, .cx-orders .card .btn-outline-secondary, .cx-orders .card .btn-outline-info,
+.cx-orders .card .btn-outline-warning, .cx-orders .card .btn-secondary {
+  background: var(--cx-soft) !important; color: var(--cx-text) !important; border: 1px solid var(--cx-border-strong) !important; box-shadow: none;
 }
+.cx-orders .card .btn-outline-primary:hover, .cx-orders .card .btn-outline-secondary:hover, .cx-orders .card .btn-outline-info:hover,
+.cx-orders .card .btn-outline-warning:hover, .cx-orders .card .btn-secondary:hover { border-color: var(--cx-cyan) !important; color: #fff !important; box-shadow: var(--cx-glow); }
+.cx-orders .card .btn-outline-danger, .cx-orders .card .btn-danger { background: rgba(248, 113, 113, .12) !important; color: var(--cx-red) !important; border: 1px solid rgba(248, 113, 113, .4) !important; box-shadow: none; }
+.cx-orders .card .btn-outline-danger:hover, .cx-orders .card .btn-danger:hover { background: rgba(248, 113, 113, .22) !important; }
 </style>
 {% endblock %}

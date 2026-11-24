@@ -3,7 +3,7 @@
 {% load i18n %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="cx-container cx-prefs">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card">
@@ -222,7 +222,7 @@
                         </div>
 
                         <!-- Save Button -->
-                        <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 prefs-actions">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> {% trans "Save Preferences" %}
                             </button>
@@ -264,7 +264,7 @@
                                             </td>
                                             <td>
                                                 <span class="badge bg-{% if email.email_type == 'order_confirmation' %}primary{% elif email.email_type == 'promotional' %}success{% elif email.email_type == 'security' %}warning{% else %}secondary{% endif %}">
-                                                    {{ email.get_email_type_display }}
+                                                    {% trans email.get_email_type_display %}
                                                 </span>
                                             </td>
                                             <td>
@@ -311,7 +311,7 @@
                             </table>
                         </div>
                     {% else %}
-                        <div class="text-center py-4">
+                        <div class="cx-empty">
                             <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                             <h5>{% trans "No emails sent yet" %}</h5>
                             <p class="text-muted">{% trans "Your email history will appear here once we start sending you emails." %}</p>
@@ -347,28 +347,65 @@
 </div>
 
 <style>
-.form-check-input:checked {
-    background-color: #4A5C6A;
-    border-color: #4A5C6A;
+/* Email preferences - neon glass */
+.cx-prefs { padding: clamp(24px, 4vw, 44px) 0 56px; }
+.cx-prefs .card { overflow: hidden; }
+.cx-prefs .card-header { padding: 20px 24px; }
+.cx-prefs .card-header h4, .cx-prefs .card-header h5 { font-family: var(--cx-display); color: var(--cx-heading); font-weight: 700; display: flex; align-items: center; gap: 12px; }
+.cx-prefs .card-header h4 { font-size: 1.45rem; margin-bottom: 4px !important; }
+.cx-prefs .card-header h4 i, .cx-prefs .card-header h5 i {
+  width: 38px; height: 38px; border-radius: 11px; display: inline-grid; place-items: center; font-size: 1rem;
+  background: var(--cx-grad-soft); border: 1px solid var(--cx-border-strong); color: var(--cx-cyan);
+}
+.cx-prefs .card-header h4 + p { padding-left: 50px; }
+.cx-prefs .card-body { padding: 24px; }
+.cx-prefs form > .mb-4 { padding: 18px 20px; margin-bottom: 0 !important; background: var(--cx-soft); border: 1px solid var(--cx-border); border-radius: 14px; }
+.cx-prefs form > hr { border: 0; margin: 14px 0; opacity: 0; }
+.cx-prefs form h5 { color: var(--cx-heading); font-size: 1.05rem; font-weight: 600; display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.cx-prefs form h5 i { color: var(--cx-cyan); }
+.cx-prefs form h5 + p { margin-bottom: 14px; font-size: .9rem; }
+.cx-prefs .form-check-label { color: var(--cx-text); cursor: pointer; }
+.cx-prefs .form-check-label strong { color: var(--cx-heading); font-weight: 600; }
+.cx-prefs .form-check-input { background-color: var(--cx-nav-bg); border-color: var(--cx-border-strong); cursor: pointer; }
+.cx-prefs .form-check-input:focus { box-shadow: 0 0 0 4px rgba(34, 211, 238, .15); border-color: var(--cx-cyan); }
+.cx-prefs .form-check-input:checked { background-color: var(--cx-violet); border-color: var(--cx-violet); }
+.cx-prefs .form-switch { padding-left: 3.4em; }
+.cx-prefs .form-switch .form-check-input {
+  width: 2.6em; height: 1.35em; margin-top: .15em; margin-left: -3.4em;
+  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%238f9bb6'/%3e%3c/svg%3e");
+  background-color: var(--cx-soft-2);
+}
+.cx-prefs .form-switch .form-check-input:checked { --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e"); }
+.cx-prefs .form-switch .form-check-input:checked { background-color: var(--cx-cyan); border-color: var(--cx-cyan); box-shadow: 0 0 12px rgba(34, 211, 238, .4); }
+.cx-prefs .form-check-input:disabled ~ .form-check-label { opacity: .7; }
+.cx-prefs .prefs-actions { margin-top: 22px; }
+.cx-prefs .prefs-actions a.text-muted:hover { color: var(--cx-red) !important; }
+.cx-prefs .badge { font-size: .72rem; border-radius: 999px; padding: 5px 9px; }
+.cx-prefs .table th { border-top: none; }
+.cx-prefs .table td { vertical-align: middle; }
+.cx-prefs .table .fw-bold { color: var(--cx-heading); }
+.cx-prefs .btn-group .btn { border-radius: 10px !important; }
+.cx-prefs .btn-outline-warning { background: var(--cx-soft) !important; border: 1px solid var(--cx-border-strong) !important; color: var(--cx-amber) !important; }
+.cx-prefs .cx-empty i { font-size: 2.2rem; margin-bottom: 12px; color: var(--cx-cyan); }
+.cx-prefs .cx-empty h5 { color: var(--cx-heading); }
+#emailPreviewModal .modal-content { background: var(--cx-surface-solid) !important; }
+#emailPreviewModal .modal-title { color: var(--cx-heading); display: flex; gap: 10px; align-items: center; }
+#emailPreviewModal .btn-close { filter: invert(1) grayscale(1) brightness(1.6); }
+@media (max-width: 575px) {
+  .cx-prefs .card-header, .cx-prefs .card-body { padding: 16px; }
+  .cx-prefs form > .mb-4 { padding: 14px; }
+  .cx-prefs .card-header h4 + p { padding-left: 0; margin-top: 6px; }
 }
 
-.form-switch .form-check-input {
-    width: 2.5em;
-    height: 1.25em;
+/* The theme paints every .card .btn with the gradient; restore secondary / danger buttons inside cards */
+.cx-prefs .card .btn-outline-primary, .cx-prefs .card .btn-outline-secondary, .cx-prefs .card .btn-outline-info,
+.cx-prefs .card .btn-outline-warning, .cx-prefs .card .btn-secondary {
+  background: var(--cx-soft) !important; color: var(--cx-text) !important; border: 1px solid var(--cx-border-strong) !important; box-shadow: none;
 }
-
-.badge {
-    font-size: 0.75em;
-}
-
-.table th {
-    border-top: none;
-    font-weight: 600;
-}
-
-.card-header {
-    background-color: #f8f9fa;
-}
+.cx-prefs .card .btn-outline-primary:hover, .cx-prefs .card .btn-outline-secondary:hover, .cx-prefs .card .btn-outline-info:hover,
+.cx-prefs .card .btn-outline-warning:hover, .cx-prefs .card .btn-secondary:hover { border-color: var(--cx-cyan) !important; color: #fff !important; box-shadow: var(--cx-glow); }
+.cx-prefs .card .btn-outline-danger, .cx-prefs .card .btn-danger { background: rgba(248, 113, 113, .12) !important; color: var(--cx-red) !important; border: 1px solid rgba(248, 113, 113, .4) !important; box-shadow: none; }
+.cx-prefs .card .btn-outline-danger:hover, .cx-prefs .card .btn-danger:hover { background: rgba(248, 113, 113, .22) !important; }
 </style>
 
 <script>
@@ -382,7 +419,7 @@ function previewEmail(emailId) {
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Failed to load email preview');
+            alert('{% trans "Failed to load email preview" %}');
         });
 }
 
@@ -399,12 +436,12 @@ function resendEmail(emailId) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Failed to resend email: ' + data.message);
+                alert('{% trans "Failed to resend email:" %} ' + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while resending the email');
+            alert('{% trans "An error occurred while resending the email" %}');
         });
     }
 }

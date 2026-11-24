@@ -2,59 +2,29 @@
 {% load static %}
 {% load i18n %}
 {% block content %}
-<style>
-    .main-container {
-        background: #f5f7fa;
-        padding: 30px;
-        border-radius: 15px;
-        margin: 20px auto;
-        max-width: 1400px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    }
-    .products-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 25px;
-        padding: 20px;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        
-    .card {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        overflow: hidden;
-        transition: transform 0.2s;
-    }
+<link rel="stylesheet" href="{% static 'assets/css/product-list.css' %}">
 
-    .card:hover {
-        transform: translateY(-5px);
-    }
-    }
-</style>
-<br>
-<h1 style="text-align:center;font-weight: bold;font-weight:Times New Roman;color:#4A5C6A;">{{shop.title}}</h1>
-<br>
-<div class="main-container">
-    <div class="products-grid">
-        {% for p in products %} 
-        <div class="card">
-            <img src="{{ p.image.url }}" class="card-img-top" alt="{{ p.name }}">
-            <h5 class="card-title">{{ p.title }}</h5>
-            <div class="card-footer">
-                <span class="price"> {% include 'flame/includes/price_display.html' with p=product %}</span>
-                <a href="{% url 'flame:product-detail' p.p_id %}" class="btn btn-primary" style="text-decoration: none;">
-                    {% trans "View Product" %}
-                </a>
-            </div>
+<main class="cx-container pl-bottom">
+  <section class="pl-hero">
+    <span class="cx-eyebrow"><i class="fas fa-store"></i> {% trans "Shop" %}</span>
+    <h1 class="cx-gradient-text">{{shop.title}}</h1>
+  </section>
+
+  <section class="main-container" style="margin-top:28px;">
+    <div class="pl-results-head">
+      <h2>{% trans "Products" %}</h2>
+      <span class="cx-chip"><i class="fas fa-laptop"></i>{{ products|length }}</span>
+    </div>
+    <div class="pl-grid products-grid">
+      {% for p in products %}
+        <div class="pl-item">
+          {% include 'partials/product_card.html' with product=p show_discount=True %}
         </div>
-        {% endfor %}
-    </div>    
-</div>            
-<br><br><br>
-<hr></hr>
-              
-                              {% comment "" %} Block Of Home Page End Here{% endcomment %}
-                              
+      {% empty %}
+        <div class="cx-empty"><i class="fas fa-box-open fa-2x mb-3"></i><p class="mb-0">{% trans "No products found." %}</p></div>
+      {% endfor %}
+    </div>
+  </section>
+</main>
 
 {% endblock content %}

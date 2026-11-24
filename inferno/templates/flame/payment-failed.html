@@ -5,50 +5,40 @@
 {% block content %}
 
 <style>
-    /* Add error-specific styles */
-    .payment-error {
-        color: #dc3545;
-        border-left: 4px solid #dc3545;
-        padding-left: 20px;
-        margin: 25px 0;
-    }
-    
-    .error-icon {
-        font-size: 3rem;
-        color: #dc3545;
-        margin-bottom: 15px;
-    }
-    
-    .alert-button {
-        background-color: #dc3545 !important;
-        border-color: #dc3545 !important;
-    }
-    
-    .alert-button:hover {
-        background-color: #bb2d3b !important;
-        border-color: #b02a37 !important;
-    }
-    
-    .troubleshoot-list {
-        background-color: #fff5f5;
-        border-radius: 8px;
-        padding: 20px;
-        margin: 25px 0;
-    }
-    
-    .troubleshoot-list li {
-        margin: 10px 0;
-        color: #842029;
-    }
-    .troubleshoot-list h3{
-        color: #842029;
+    .pf-result { width: min(760px, 100% - 32px); margin: 0 auto; padding: 48px 0 24px; display: grid; gap: 20px; }
+    .pf-result .pf-card { padding: clamp(22px, 4vw, 36px); }
+    .pf-result h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 700; margin: 10px 0 0; color: var(--cx-heading); letter-spacing: .02em; }
 
+    .error-icon {
+        width: 76px; height: 76px; margin: 0 auto 16px; border-radius: 50%; display: grid; place-items: center;
+        font-size: 2rem; color: var(--cx-red); background: rgba(248, 113, 113, .12); border: 1px solid rgba(248, 113, 113, .4);
+        box-shadow: 0 0 0 8px rgba(248, 113, 113, .06), 0 10px 40px rgba(248, 113, 113, .2);
     }
+
+    .payment-error {
+        margin: 22px 0 0; padding: 14px 18px; text-align: left; border-radius: 12px;
+        background: rgba(248, 113, 113, .06); border: 1px solid rgba(248, 113, 113, .25); border-left: 4px solid var(--cx-red);
+        color: #fecaca;
+    }
+    .payment-error p { margin: 4px 0; overflow-wrap: anywhere; }
+    .payment-error h2 { font-size: 1.05rem; margin: 0; color: #fecaca; }
+
+    .troubleshoot-list { padding: clamp(18px, 3vw, 28px); }
+    .troubleshoot-list h3 { font-size: 1.1rem; font-weight: 700; color: var(--cx-heading); margin: 0 0 14px; display: flex; gap: 10px; align-items: center; }
+    .troubleshoot-list h3 i { color: var(--cx-cyan); }
+    .troubleshoot-list ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+    .troubleshoot-list li { display: flex; gap: 10px; align-items: flex-start; color: #c7d0e3; }
+    .troubleshoot-list li::before { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: var(--cx-cyan); font-size: .8rem; margin-top: 4px; }
+
+    .pf-help { padding: 18px 22px; color: var(--cx-muted); }
+    .pf-help strong { color: var(--cx-heading); }
+
+    .alert-button { background: rgba(248, 113, 113, .12) !important; color: var(--cx-red) !important; border: 1px solid rgba(248, 113, 113, .4) !important; }
 </style>
 
-<main>
-    <div class="text-center">
-        <div class="error-icon">⚠️</div>
+<main class="pf-result">
+    <div class="text-center pf-card cx-glass">
+        <div class="error-icon"><i class="fas fa-triangle-exclamation"></i></div>
         <h1>{% trans "PAYMENT FAILED" %}</h1>
         {% if order.order_type == 'shop' %}
         <div class="payment-error">
@@ -63,10 +53,8 @@
         {% endif %}
     </div>
 
-
-
-    <div class="troubleshoot-list">
-        <h3>{% trans "Need Help?" %}</h3>
+    <div class="troubleshoot-list cx-glass">
+        <h3><i class="fas fa-life-ring"></i> {% trans "Need Help?" %}</h3>
         <ul>
             <li>{% trans "Check if your payment method has sufficient funds" %}</li>
             <li>{% trans "Verify your card details are entered correctly" %}</li>
@@ -75,23 +63,21 @@
             <li>{% trans "Try using a different payment method" %}</li>
         </ul>
     </div>
-{% comment %} 
+{% comment %}
     <div class="invoice-info">
         <h3>Order Information</h3>
         <p><strong>Attempted by:</strong> {{ request.user|title }}</p>
         <p><strong>Order ID:</strong> {{ order.id }}</p>
         <p><strong>Date:</strong> {{ order.order_date|date:"F j, Y H:i" }}</p>
     </div> {% endcomment %}
-{% comment %} 
+{% comment %}
     <div class="button-container" id="buttonContainer">
         <a href="#" class="btn alert-button">Retry Payment</a>
         <a href="#" class="btn">Contact Support</a>
     </div> {% endcomment %}
 
-    <div class="hr"></div>
-
-    <div class="text-center">
-        <p style="color: #333;">
+    <div class="text-center pf-help cx-glass">
+        <p class="mb-0">
             <strong>{% trans "Need immediate assistance?" %}</strong><br>
             {% blocktrans with phone="+1 (800) 123-4567" email="support@cyberoptix.com" %}
                 Call us at {{ phone }} or email {{ email }}
@@ -100,6 +86,4 @@
     </div>
 </main>
 
-<br><br><br>
-<hr>
 {% endblock content %}

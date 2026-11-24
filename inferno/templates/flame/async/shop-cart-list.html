@@ -7,14 +7,14 @@
   {% for product_id, item in shop_cart.products.items %}
   <div class="cart-item">
       <div class="product-info">
-          <img src="{{ item.image }}" class="cart-item-img">
+          <img src="{{ item.image }}" class="cart-item-img" alt="{{ item.title }}">
           <div>
               <h3>{{ item.title }}</h3>
               <small>{% trans "Sold by" %} {{ shop_cart.shop.title }}</small>
           </div>
       </div>
      
-      <div class="price-column" data-price-usd="{{ item.price }}">
+      <div class="price-column" data-label="{% trans 'Unit Price' %}" data-price-usd="{{ item.price }}">
           {% if current_language == 'my' %}
               {{ item.price|multiply:exchange_rate|floatformat:0|to_myanmar_numerals }} ကျပ်
           {% else %}
@@ -22,7 +22,7 @@
           {% endif %}
       </div>
      
-      <div class="quantity-control">
+      <div class="quantity-control" data-label="{% trans 'Quantity' %}">
           <input type="number" value="{{ item.qty }}" min="1"
                  class="cart-qty product-qty-{{ product_id }}"
                  data-item-id="{{ product_id }}"
@@ -30,7 +30,7 @@
                  data-price="{{ item.price }}">
       </div>
      
-      <div class="price-column cart-total-amount" data-item-total-usd="{{ item.price|multiply:item.qty }}">
+      <div class="price-column cart-total-amount" data-label="{% trans 'Subtotal' %}" data-item-total-usd="{{ item.price|multiply:item.qty }}">
           {% if current_language == 'my' %}
               {{ item.price|multiply:item.qty|multiply:exchange_rate|floatformat:0|to_myanmar_numerals }} ကျပ်
           {% else %}
@@ -41,7 +41,8 @@
       <div class="actions-column">
           <button class="btn-delete delete-product"
                   data-product="{{ product_id }}"
-                  data-shop-id="{{ shop_cart.shop.shop_id }}">
+                  data-shop-id="{{ shop_cart.shop.shop_id }}"
+                  title="{% trans 'Remove' %}" aria-label="{% trans 'Remove' %}">
               <i class="fa fa-trash"></i>
           </button>
       </div>

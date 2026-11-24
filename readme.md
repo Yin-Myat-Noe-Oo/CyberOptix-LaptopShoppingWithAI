@@ -233,3 +233,24 @@ CyberOptix/
 
 MIIT License © 2025 CyberOptix Team
 
+
+---
+
+## 🤖 AI Shopping Assistant & Recommendations
+
+**Veras chatbot** (`inferno/verasChatbot/`) — a floating assistant on every page (full page at `/en/chat/`).
+It parses purpose, budget, brand, RAM and CPU from plain language, ranks real products from the
+database, remembers context for follow-ups ("show me cheaper options", "what about Dell?"), and
+answers payment / shipping / return questions.
+
+* API: `POST /veras/api/` with JSON `{"message": "...", "history": [...]}` (legacy `GET /chatbot-reply?message=` still works).
+* Works fully offline. Optionally set `ANTHROPIC_API_KEY` in `inferno/.env` (and `pip install anthropic`)
+  to let Claude phrase the replies — product cards always come from the database.
+
+**Recommendation engine** (`inferno/flame/recommender.py`) — shared by the chatbot and the
+**AI Picks** page (`/en/recommendation_page/`). Scores every product on CPU tier, RAM, purpose
+keywords and value for budget.
+
+* Personalised "For You" page: `/en/recommendations/` (falls back to live picks from your browsing).
+* Similar products API: `/en/api/product/<id>/recommendations/` — populate with
+  `python manage.py generate_recommendations --recalculate-similarities` (run periodically).

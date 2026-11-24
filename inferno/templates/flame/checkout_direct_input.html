@@ -8,8 +8,7 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'assets/css/checkout.css' %}">
 
-<body style="background-color:rgb(21, 40, 56);">
-    <div class="container">
+<div class="co-page">
         <!-- Connection Status Indicator -->
         <div id="connection-status-bar" class="alert alert-info" style="display: none;">
             <div class="d-flex align-items-center">
@@ -23,6 +22,7 @@
 
         <!-- Shop Information Section -->
         {% if shop %}
+        <span class="cx-eyebrow"><i class="fas fa-lock"></i> {% trans "Checkout" %}</span>
         <h2>{% trans "Checking out from" %} {{ shop.title }}</h2>
         <div class="shop-info">
             <p>
@@ -51,7 +51,7 @@
         <div class="checkout-content">
             <!-- Billing Details -->
             <div class="billing-details">
-                <h3>{% trans "Customer Details" %}</h3>
+                <h3><i class="fas fa-user" style="color:var(--cx-cyan)"></i> {% trans "Customer Details" %}</h3>
 
                 <form id="direct-input-form">
                     <div class="form-group">
@@ -215,7 +215,7 @@
 
             <!-- Order Summary -->
             <div class="order-summary">
-                <h3>{% trans "Your Order" %}</h3>
+                <h3><i class="fas fa-receipt" style="color:var(--cx-cyan)"></i> {% trans "Your Order" %}</h3>
 
                 <!-- Order Items -->
                 <div class="cart-items" id="direct-input-cart-items">
@@ -278,19 +278,16 @@
                 <!-- Submit Button -->
                 <div class="checkout-actions">
                     <button type="button"
-                            class="btn btn-success btn-lg"
+                            class="btn btn-success btn-lg co-btn"
                             id="submit-direct-order"
                             style="width: 100%; margin-top: 15px;">
                         <i class="fas fa-shopping-cart me-2"></i>
                         {% trans "Place Order" %}
                     </button>
 
-                    <button class="back-to-cart mt-3">
-                        <a href="{% url 'flame:product-list' %}"
-                           style="text-decoration: none;color: inherit;">
-                            {% trans "Continue Shopping" %}
-                        </a>
-                    </button>
+                    <a href="{% url 'flame:product-list' %}" class="back-to-cart co-back">
+                        <i class="fas fa-arrow-left"></i> {% trans "Continue Shopping" %}
+                    </a>
                 </div>
             </div>
         </div>
@@ -549,7 +546,7 @@
                 // Load cart items (implement based on your cart system)
                 const container = document.getElementById('direct-input-cart-items');
                 if (container) {
-                    container.innerHTML = '<p class="text-center text-muted">Loading cart items...</p>';
+                    container.innerHTML = '<p class="text-center text-muted">{% trans "Loading cart items..." %}</p>';
                     // Implement cart loading logic
                 }
             }
@@ -715,117 +712,5 @@
         });
     </script>
 
-    <style>
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-group label {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 0.5rem;
-        display: block;
-    }
-
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-        width: 100%;
-        padding: 0.75rem;
-        border: 2px solid #e1e5e9;
-        border-radius: 8px;
-        font-size: 1rem;
-        transition: border-color 0.3s ease;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    }
-
-    .form-group input.is-invalid {
-        border-color: #dc3545;
-    }
-
-    .form-text {
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
-
-    .delivery-address-section {
-        background: #f8f9fa;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin: 1.5rem 0;
-        border: 1px solid #e9ecef;
-    }
-
-    .delivery-address-section h4 {
-        color: #495057;
-        margin-bottom: 1rem;
-    }
-
-    .address-validation {
-        margin-top: 1rem;
-        text-align: center;
-    }
-
-    .payment-option {
-        border: 2px solid #e1e5e9;
-        border-radius: 8px;
-        margin-bottom: 1rem;
-        padding: 1rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .payment-option:hover {
-        border-color: #007bff;
-        background: #f8f9fa;
-    }
-
-    .payment-option input:checked + .payment-option-label {
-        color: #007bff;
-    }
-
-    .checkout-actions {
-        margin-top: 2rem;
-    }
-
-    .field-error {
-        animation: shake 0.3s ease-in-out;
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-    }
-
-    /* Myanmar language support */
-    html[lang="my"] .form-group label,
-    html[lang="my"] .form-text,
-    html[lang="my"] .field-error {
-        font-family: 'Padauk', sans-serif;
-    }
-
-    @media (max-width: 768px) {
-        .delivery-address-section {
-            padding: 1rem;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            padding: 0.5rem;
-        }
-    }
-    </style>
-</body>
-
-<br><br><br>
-<hr>
 
 {% endblock content %}

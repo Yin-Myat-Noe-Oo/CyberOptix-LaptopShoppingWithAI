@@ -4,9 +4,9 @@
 {% load i18n %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'assets/css/login.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/login.css' %}?v=3">
 
-<main>
+<main class="cx-auth">
 <div class="container">
     <div class="form-container">
         <div class="col-1">
@@ -16,7 +16,7 @@
                     <p>{% trans "Create your Gmail account and start shopping for amazing laptops!" %}</p>
                     <div class="features-list">
                         <div class="feature-item">
-                            <i class="fas fa-shield-check"></i>
+                            <i class="fas fa-shield-alt"></i>
                             <span>{% trans "Gmail Verification Required" %}</span>
                         </div>
                         <div class="feature-item">

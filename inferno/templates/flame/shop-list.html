@@ -2,34 +2,33 @@
 {% load static %}
 {% load i18n %}
 {% block content %}
-  <div class="products" id="shoppingSection">
-      <div class="title">
-  <h1 style="text-align:center;font-weight: bold;font-weight:Times New Roman;color:#4A5C6A;">{% trans "Shops" %}</h1><br>
-  <h2 style="text-align:center;color:#4A5C6A;font-weight:Times New Roman;">
+<link rel="stylesheet" href="{% static 'assets/css/product-list.css' %}">
+
+<main class="cx-container pl-bottom products" id="shoppingSection">
+  <section class="pl-hero title">
+    <span class="cx-eyebrow"><i class="fas fa-store"></i> {% trans "Shops" %}</span>
+    <h1 class="cx-gradient-text">{% trans "Shops" %}</h1>
+    <p>
     {% blocktrans count shop_count=shop.count %}
     We have {{ shop_count }} shop now.
     {% plural %}
     We have {{ shop_count }} shops now.
     {% endblocktrans %}
-   </h2><br>
-      </div>
-      <br><br>
-<!-- Shop Card Container -->
-<div class="shop-card-container" >
-  <!-- Shop -->
-   {% for s in shop %}
-  <div class="shop-card">
-      <img src="{{ s.image.url}}" alt="Unique Shop">
+    </p>
+  </section>
+
+  <!-- Shop Card Container -->
+  <div class="pl-shops shop-card-container" style="margin-top:32px;">
+    {% for s in shop %}
+    <a class="pl-shop shop-card" href="{% url 'flame:shop-detail' s.shop_id %}">
+      <img src="{{ s.image.url }}" alt="{{ s.title }}" loading="lazy">
       <div class="shop-info">
-          <h5>{{s.title}}</h5>
-          <a href="{% url 'flame:shop-detail' s.shop_id %}">{% trans "View Shop" %}</a>
+        <h5>{{ s.title }}</h5>
+        <span>{% trans "View Shop" %} <i class="fas fa-arrow-right"></i></span>
       </div>
+    </a>
+    {% endfor %}
   </div>
-  {% endfor %}
-</div>                    
-                              <br><br><br>
-                              <hr></hr>
-              
-                              
+</main>
 
 {% endblock content %}

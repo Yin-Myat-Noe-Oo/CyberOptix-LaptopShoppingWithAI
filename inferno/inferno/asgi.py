@@ -8,7 +8,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "inferno.settings")  # ✅ your 
 
 django_asgi_app = get_asgi_application()
 
-from verasChatbot.app import get_gradio_app  # ✅ your app name
+from verasChatbot.gradio_ui import get_gradio_app
 
 fastapi_app = FastAPI()
 

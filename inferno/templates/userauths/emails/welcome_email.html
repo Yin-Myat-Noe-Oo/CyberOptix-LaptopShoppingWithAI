@@ -1,9 +1,10 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to LaptopMart Myanmar!</title>
+    <title>{% trans "Welcome to LaptopMart Myanmar!" %}</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -125,78 +126,78 @@
     <div class="email-container">
         <div class="email-header">
             <div class="emoji-large"></div>
-            <h1>Welcome to {{ site_name }}!</h1>
-            <p>Your account is now active and ready to use</p>
+            <h1>{% blocktrans %}Welcome to {{ site_name }}!{% endblocktrans %}</h1>
+            <p>{% trans "Your account is now active and ready to use" %}</p>
         </div>
         
         <div class="email-body">
-            <p class="welcome-text">Hello {{ user.username }}!</p>
+            <p class="welcome-text">{% blocktrans with username=user.username %}Hello {{ username }}!{% endblocktrans %}</p>
             
-            <p>Congratulations! Your email has been successfully verified and your {{ site_name }} account is now fully activated. We're thrilled to welcome you to Myanmar's premier destination for laptops and technology!</p>
+            <p>{% blocktrans %}Congratulations! Your email has been successfully verified and your {{ site_name }} account is now fully activated. We're thrilled to welcome you to Myanmar's premier destination for laptops and technology!{% endblocktrans %}</p>
             
             <div style="text-align: center; margin: 30px 0;">
                 <a href="#" class="cta-button">
-                    Start Shopping Now
+                    {% trans "Start Shopping Now" %}
                 </a>
             </div>
             
-            <h3 style="color: #4A5C6A; margin-top: 35px;">What You Can Do Now:</h3>
+            <h3 style="color: #4A5C6A; margin-top: 35px;">{% trans "What You Can Do Now:" %}</h3>
             
             <div class="feature-grid">
                 <div class="feature-card">
                     <div class="feature-icon">💻</div>
-                    <div class="feature-title">Browse Premium Laptops</div>
-                    <p>Discover the latest models from top brands with detailed specifications and reviews.</p>
+                    <div class="feature-title">{% trans "Browse Premium Laptops" %}</div>
+                    <p>{% trans "Discover the latest models from top brands with detailed specifications and reviews." %}</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon"></div>
-                    <div class="feature-title">Exclusive Member Deals</div>
-                    <p>Access special discounts and promotions available only to registered members.</p>
+                    <div class="feature-title">{% trans "Exclusive Member Deals" %}</div>
+                    <p>{% trans "Access special discounts and promotions available only to registered members." %}</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon"></div>
-                    <div class="feature-title">Fast & Secure Delivery</div>
-                    <p>Enjoy free shipping on orders over 500,000 MMK with real-time tracking.</p>
+                    <div class="feature-title">{% trans "Fast & Secure Delivery" %}</div>
+                    <p>{% trans "Enjoy free shipping on orders over 500,000 MMK with real-time tracking." %}</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon"></div>
-                    <div class="feature-title">Share Your Experience</div>
-                    <p>Write reviews and help other customers make informed decisions.</p>
+                    <div class="feature-title">{% trans "Share Your Experience" %}</div>
+                    <p>{% trans "Write reviews and help other customers make informed decisions." %}</p>
                 </div>
             </div>
             
             <div class="promo-banner">
-                <h3 style="margin: 0 0 10px 0;">New Member Special!</h3>
+                <h3 style="margin: 0 0 10px 0;">{% trans "New Member Special!" %}</h3>
                 <p style="margin: 0; font-size: 18px;">
-                    Get <strong>10% OFF</strong> your first order with code: <strong>WELCOME10</strong>
+                    {% trans "Get" %} <strong>{% trans "10% OFF" %}</strong> {% trans "your first order with code:" %} <strong>WELCOME10</strong>
                 </p>
                 <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">
-                    Valid for 30 days • Minimum order: 200,000 MMK
+                    {% trans "Valid for 30 days • Minimum order: 200,000 MMK" %}
                 </p>
             </div>
             
-            <h3 style="color: #4A5C6A; margin-top: 35px;">🔧 Account Security Tips:</h3>
+            <h3 style="color: #4A5C6A; margin-top: 35px;">{% trans "🔧 Account Security Tips:" %}</h3>
             <ul>
-                <li>Your Gmail address has been verified</li>
-                <li>Consider enabling two-factor authentication for extra security</li>
-                <li>Download our mobile app for shopping on the go</li>
-                <li>Manage your email preferences in account settings</li>
+                <li>{% trans "Your Gmail address has been verified" %}</li>
+                <li>{% trans "Consider enabling two-factor authentication for extra security" %}</li>
+                <li>{% trans "Download our mobile app for shopping on the go" %}</li>
+                <li>{% trans "Manage your email preferences in account settings" %}</li>
             </ul>
             
-            <p>Our customer support team is available 24/7 to help you with any questions or concerns. Don't hesitate to reach out!</p>
+            <p>{% trans "Our customer support team is available 24/7 to help you with any questions or concerns. Don't hesitate to reach out!" %}</p>
             
             <p style="margin-top: 30px;">
-                <strong>Happy Shopping!</strong><br>
-                The {{ site_name }} Team
+                <strong>{% trans "Happy Shopping!" %}</strong><br>
+                {% blocktrans %}The {{ site_name }} Team{% endblocktrans %}
             </p>
         </div>
         
         <div class="footer">
-            <p><strong>&copy; 2024 {{ site_name }}. All rights reserved.</strong></p>
-            <p>Myanmar's Most Trusted Laptop Store</p>
+            <p><strong>&copy; 2024 {{ site_name }}. {% trans "All rights reserved." %}</strong></p>
+            <p>{% trans "Myanmar's Most Trusted Laptop Store" %}</p>
             
             <div class="social-links">
                 <a href="#">Facebook</a>
@@ -206,12 +207,12 @@
             </div>
             
             <p style="margin-top: 20px; font-size: 12px; color: #999;">
-                This email was sent to {{ user.email }}<br>
-                You can update your email preferences anytime in your account settings.
+                {% blocktrans with email=user.email %}This email was sent to {{ email }}{% endblocktrans %}<br>
+                {% trans "You can update your email preferences anytime in your account settings." %}
             </p>
             
             <p style="font-size: 12px; color: #999; margin-top: 10px;">
-                📍 Yangon, Myanmar | 📞 +95 9 941 641 274 | 🌐 www.laptopmart.com.mm
+                {% trans "📍 Yangon, Myanmar | 📞 +95 9 941 641 274 | 🌐 www.laptopmart.com.mm" %}
             </p>
         </div>
     </div>

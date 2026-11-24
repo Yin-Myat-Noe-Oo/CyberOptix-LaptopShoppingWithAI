@@ -1,119 +1,30 @@
 {% load math_filters %}
 {% load myanmar_filter %}
 {% load static %}
-
-    <style>
-       
-        .wishlist-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .wishlist-header {
-            margin-bottom: 1.5rem;
-        }
-
-        .wishlist-header h1 {
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .product-count {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .wishlist-items {
-            margin: 2rem 0;
-        }
-
-        .product-item {
-            display: flex;
-            align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .product-image {
-            width: 80px;
-            height: 80px;
-            background: #f0f0f0;
-            border-radius: 4px;
-            margin-right: 1rem;
-        }
-
-        .product-info {
-            flex-grow: 1;
-        }
-
-        .product-name {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .product-price {
-            color: #666;
-            margin-bottom: 0.3rem;
-        }
-
-        .stock-status {
-            color: #28a745;
-            font-size: 14px;
-        }
-
-        .product-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-left: auto;
-        }
-
-        .add-to-cart {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .remove-item {
-            color: #dc3545;
-            text-decoration: none;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .browse-categories {
-            text-align: center;
-            margin-top: 2rem;
-            color: #007bff;
-            text-decoration: none;
-            display: block;
-        }
-    </style>
-    <br>
+{% load i18n %}
+{# Re-rendered into #wishlist-list on wishlist.html after a removal; styles live in wishlist.html #}
         <div class="wishlist-header">
-            <h1>Your Wishlist</h1>
-            <div class="product-count">There are <span id="itemCount">{{ wishlist_count }}</span> products in this list</div>
+            <span class="cx-eyebrow"><i class="fas fa-heart"></i> {% trans "Wishlist" %}</span>
+            <h1>{% trans "Your Wishlist" %}</h1>
+            <div class="product-count">
+                {% blocktrans count count=wishlist_count|add:0 %}
+                    There are <span id="itemCount">{{ count }}</span> product in this list
+                {% plural %}
+                    There are <span id="itemCount">{{ count }}</span> products in this list
+                {% endblocktrans %}
+            </div>
         </div>
 
         <div class="wishlist-items">
             {% for w in w %}
             <div class="product-item" data-wishlist-id="{{ w.id }}">
                 <div class="product-image">
-                    <img src="{{w.product.image.url}}" style="height:60px;width:80px">
+                    <img src="{{w.product.image.url}}" alt="{{ w.product.title }}">
                 </div>
                 <div class="product-info">
                     <div class="product-name">{{w.product.title}}</div>
                     <div class="product-price current-product-price-{{w.product.id}}" id="current-product-price" >${{w.product.price}}</div>
-                    <div class="stock-status">{% if w.product.in_stock  %} In Stock {% else %} Out of Stock {% endif %}</div>
+                    <div class="stock-status{% if not w.product.in_stock %} is-out{% endif %}">{% if w.product.in_stock %}{% trans "In Stock" %}{% else %}{% trans "Out of Stock" %}{% endif %}</div>
                 </div>
                 <div class="product-actions">
                     <input type="hidden" value="1" id="product-quantity" class="product-quantity-{{w.product.id}}">
@@ -122,22 +33,21 @@
                     <input type="hidden" class="product-id-{{ w.product.id }}" value="{{ w.product.id }}">
                     <input type="hidden" class="product-title-{{ w.product.id }}" value="{{ w.product.title }}">
                     <input type="hidden" class="product-title-{{ w.product.id }}" value="{{ w.product.shop.shop_id }}">
-                    <button data-shop-id="{{w.product.shop.shop_id}}" data-index="{{w.product.id}}" class="add-to-cart add-to-cart-btn" id="add-to-cart-btn">Add to cart</button>
-                    <a href="{% url 'flame:shop-product-detail' w.product.shop.shop_id w.product.p_id  %}">
-                        <button class="add-to-cart add-to-cart-btn" >View Product</button>
-                    </a>
-                    <button style="border:none; background:none;"  class="btn-delete delete-wishlist-product remove-item" 
+                    <button data-shop-id="{{w.product.shop.shop_id}}" data-index="{{w.product.id}}" class="add-to-cart add-to-cart-btn" id="add-to-cart-btn"><i class="fas fa-cart-plus"></i> {% trans "Add to cart" %}</button>
+                    <a href="{% url 'flame:shop-product-detail' w.product.shop.shop_id w.product.p_id  %}" class="wl-view cx-btn-ghost">{% trans "View Product" %}</a>
+                    <button class="btn-delete delete-wishlist-product remove-item"
                               data-wishlist-product="{{ w.id }}"
                               data-shop-id="{{ shop_cart.shop.shop_id }}"
-                              data-wishlist-id="{{ w.id }}"> 
+                              data-wishlist-id="{{ w.id }}"
+                              title="{% trans 'Remove' %}" aria-label="{% trans 'Remove' %}">
                           <i class="fa fa-trash"></i>
                       </button>
                 </div>
             </div>
+            {% empty %}
+            <div class="cx-empty">
+                <p>{% trans "Your Wishlist is Empty" %}</p>
+                <a href="{% url 'flame:product-list' %}" class="cx-link">{% trans "Continue Shopping" %} <i class="fas fa-arrow-right"></i></a>
+            </div>
             {% endfor %}
-
-            
         </div>
-
-    <br>
-    <hr>

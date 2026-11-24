@@ -1,9 +1,10 @@
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Your Email Address</title>
+    <title>{% trans "Verify Your Email Address" %}</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -92,52 +93,52 @@
 <body>
     <div class="email-container">
         <div class="email-header">
-            <h1>Email Verification</h1>
-            <p>Welcome to {{ site_name }}!</p>
+            <h1>{% trans "Email Verification" %}</h1>
+            <p>{% blocktrans %}Welcome to {{ site_name }}!{% endblocktrans %}</p>
         </div>
         
         <div class="email-body">
-            <p class="welcome-text">Hi {{ user.username }}!</p>
+            <p class="welcome-text">{% blocktrans with username=user.username %}Hi {{ username }}!{% endblocktrans %}</p>
             
-            <p>Thank you for creating an account with <strong>{{ site_name }}</strong>. We're excited to have you join our community!</p>
+            <p>{% blocktrans %}Thank you for creating an account with <strong>{{ site_name }}</strong>. We're excited to have you join our community!{% endblocktrans %}</p>
             
-            <p>To complete your registration and start shopping for the best laptops, please verify your Gmail address by clicking the button below:</p>
+            <p>{% trans "To complete your registration and start shopping for the best laptops, please verify your Gmail address by clicking the button below:" %}</p>
             
             <div style="text-align: center; margin: 30px 0;">
                 <a href="{{ verification_url }}" class="verify-button">
-                    Verify My Email Address
+                    {% trans "Verify My Email Address" %}
                 </a>
             </div>
             
             <div class="info-box">
-                <p><strong>Important Information:</strong></p>
+                <p><strong>{% trans "Important Information:" %}</strong></p>
                 <ul>
-                    <li>This verification link will expire in {{ expiry_hours }} hours</li>
-                    <li>You can only use this link once</li>
-                    <li>If you didn't create this account, please ignore this email</li>
+                    <li>{% blocktrans %}This verification link will expire in {{ expiry_hours }} hours{% endblocktrans %}</li>
+                    <li>{% trans "You can only use this link once" %}</li>
+                    <li>{% trans "If you didn't create this account, please ignore this email" %}</li>
                 </ul>
             </div>
             
-            <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+            <p>{% trans "If the button doesn't work, you can copy and paste this link into your browser:" %}</p>
             <p style="word-break: break-all; color: #4A5C6A; background: #f8f9fa; padding: 10px; border-radius: 5px;">
                 {{ verification_url }}
             </p>
             
-            <p>Once verified, you'll be able to:</p>
+            <p>{% trans "Once verified, you'll be able to:" %}</p>
             <ul>
-                <li>Browse our extensive laptop collection</li>
-                <li>Access exclusive deals and discounts</li>
-                <li>Track your orders in real-time</li>
-                <li>Leave reviews and ratings</li>
-                <li>Secure checkout with multiple payment options</li>
+                <li>{% trans "Browse our extensive laptop collection" %}</li>
+                <li>{% trans "Access exclusive deals and discounts" %}</li>
+                <li>{% trans "Track your orders in real-time" %}</li>
+                <li>{% trans "Leave reviews and ratings" %}</li>
+                <li>{% trans "Secure checkout with multiple payment options" %}</li>
             </ul>
             
-            <p>If you have any questions, our customer support team is here to help!</p>
+            <p>{% trans "If you have any questions, our customer support team is here to help!" %}</p>
         </div>
         
         <div class="footer">
-            <p>&copy; 2024 {{ site_name }}. All rights reserved.</p>
-            <p>Your trusted laptop store in Myanmar</p>
+            <p>&copy; 2024 {{ site_name }}. {% trans "All rights reserved." %}</p>
+            <p>{% trans "Your trusted laptop store in Myanmar" %}</p>
             
             <div class="social-links">
                 <a href="#">Facebook</a> |
@@ -146,8 +147,7 @@
             </div>
             
             <p style="margin-top: 15px; font-size: 12px; color: #999;">
-                This email was sent to {{ user.email }}. If you no longer wish to receive these emails, 
-                you can update your preferences in your account settings.
+                {% blocktrans with email=user.email %}This email was sent to {{ email }}. If you no longer wish to receive these emails, you can update your preferences in your account settings.{% endblocktrans %}
             </p>
         </div>
     </div>

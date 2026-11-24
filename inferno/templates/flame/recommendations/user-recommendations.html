@@ -3,316 +3,208 @@
 {% load i18n %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="text-center mb-5">
-                <h2>
-                    <i class="fas fa-magic text-primary"></i>
-                    {% trans "Personalized Recommendations" %}
-                </h2>
-                <p class="lead text-muted">
-                    {% trans "Discover products tailored just for you based on your interests and shopping history" %}
-                </p>
-            </div>
+<style>
+  .ur-hero { padding: 48px 0 8px; text-align: center; }
+  .ur-hero h2 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 700; margin: 16px 0 10px; }
+  .ur-hero p { color: var(--cx-muted); max-width: 620px; margin: 0 auto; font-size: 1.05rem; }
+  .recommendation-section { margin-top: 44px; }
+  .ur-group-head { display: flex; align-items: center; gap: 16px; }
+  .recommendation-icon {
+    width: 48px; height: 48px; flex-shrink: 0; border-radius: 14px; display: grid; place-items: center; font-size: 1.15rem;
+    background: var(--cx-grad-soft); border: 1px solid var(--cx-border-strong); color: var(--cx-cyan); box-shadow: var(--cx-glow);
+  }
+  .ur-group-head h3 { font-size: clamp(1.3rem, 2.4vw, 1.7rem); font-weight: 700; margin: 0; }
+  .ur-group-head p { color: var(--cx-muted); margin: 4px 0 0; }
+  .cx-product .product-badge { z-index: 2; }
+  .cx-product .product-badge.featured { background: linear-gradient(135deg, #fbbf24, #f97316); color: #111; }
+  .cx-product .product-badge.featured i { color: #111; }
+  .cx-product .product-badge.discount { left: auto; right: 12px; }
+  .cx-product-title a { color: inherit; text-decoration: none; }
+  .cx-product-title a:hover { color: var(--cx-cyan); }
+  .product-actions { position: absolute; left: 0; right: 0; bottom: 12px; z-index: 2; display: flex; justify-content: center; gap: 8px;
+    opacity: 0; transform: translateY(8px); transition: opacity .25s, transform .25s; }
+  .cx-product:hover .product-actions, .cx-product:focus-within .product-actions { opacity: 1; transform: none; }
+  .product-actions .btn {
+    width: 38px; height: 38px; padding: 0 !important; display: grid; place-items: center; border-radius: 50% !important;
+    background: var(--cx-nav-bg) !important; border: 1px solid var(--cx-border-strong) !important; color: #fff !important;
+    backdrop-filter: blur(6px); box-shadow: none;
+  }
+  .product-actions .btn:hover { border-color: var(--cx-cyan) !important; box-shadow: var(--cx-glow); }
+  .product-actions .btn.btn-success { background: rgba(52, 211, 153, .3) !important; border-color: var(--cx-green) !important; }
+  .product-actions .btn.btn-danger { background: rgba(236, 72, 153, .3) !important; border-color: var(--cx-pink) !important; color: #fff !important; }
+  .product-rating { display: flex; align-items: center; gap: 6px; font-size: .78rem; }
+  .product-rating .stars i { font-size: .72rem; }
+  .product-rating .text-warning { color: var(--cx-amber) !important; }
+  .product-rating .stars .text-muted { color: #3a4766 !important; }
+  .cx-product .stock-status .badge { font-size: .7rem; font-weight: 600; padding: 5px 9px; border-radius: 999px; }
+  .ur-more { text-align: center; margin-top: 24px; }
+  .ur-empty { margin-top: 40px; }
+  .ur-empty .ur-empty-icon { font-size: 2.6rem; margin-bottom: 16px; background: var(--cx-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .ur-empty h3 { color: var(--cx-heading); }
+  .ur-empty .ur-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+  @media (hover: none) { .product-actions { opacity: 1; transform: none; } }
+</style>
 
-            {% if recommendation_groups %}
-                {% for group_name, products in recommendation_groups.items %}
-                    <div class="recommendation-section mb-5">
-                        <div class="d-flex align-items-center mb-4">
-                            <div class="recommendation-icon me-3">
-                                <i class="fas fa-{% if 'Popular' in group_name %}fire{% elif 'Similar' in group_name %}heart{% elif 'Trending' in group_name %}trending-up{% elif 'Collaborative' in group_name %}users{% else %}star{% endif %}"></i>
-                            </div>
-                            <div>
-                                <h3 class="mb-0">{{ group_name }}</h3>
-                                <p class="text-muted mb-0">
-                                    {% if 'Popular' in group_name %}
-                                        {% trans "Products that are currently popular among all customers" %}
-                                    {% elif 'Collaborative' in group_name %}
-                                        {% trans "Products loved by customers with similar taste" %}
-                                    {% elif 'Content' in group_name %}
-                                        {% trans "Products similar to ones you've viewed or bought" %}
-                                    {% elif 'Trending' in group_name %}
-                                        {% trans "Hot products trending right now" %}
-                                    {% else %}
-                                        {% trans "Specially curated for you" %}
-                                    {% endif %}
-                                </p>
-                            </div>
+<div class="cx-container">
+    <section class="ur-hero">
+        <span class="cx-eyebrow"><i class="fas fa-wand-magic-sparkles"></i> {% trans "Specially curated for you" %}</span>
+        <h2>{% trans "Personalized Recommendations" %}</h2>
+        <p>{% trans "Discover products tailored just for you based on your interests and shopping history" %}</p>
+    </section>
+
+    {% if recommendation_groups %}
+        {% for group_name, products in recommendation_groups.items %}
+            <section class="recommendation-section">
+                <div class="cx-section-head">
+                    <div class="ur-group-head">
+                        <div class="recommendation-icon">
+                            <i class="fas fa-{% if 'Popular' in group_name %}fire{% elif 'Similar' in group_name %}heart{% elif 'Trending' in group_name %}arrow-trend-up{% elif 'Collaborative' in group_name %}users{% else %}star{% endif %}"></i>
                         </div>
-
-                        <div class="row">
-                            {% for product in products %}
-                                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                                    <div class="product-card h-100">
-                                        <div class="product-image-container">
-                                            <img src="{{ product.image.url }}" 
-                                                 alt="{{ product.title }}" 
-                                                 class="product-image">
-                                            
-                                            <!-- Quick Actions -->
-                                            <div class="product-overlay">
-                                                <div class="product-actions">
-                                                    <a href="{% url 'flame:product-detail' product.p_id %}" 
-                                                       class="btn btn-primary btn-sm">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <button class="btn btn-outline-light btn-sm add-to-cart" 
-                                                            data-product-id="{{ product.id }}">
-                                                        <i class="fas fa-cart-plus"></i>
-                                                    </button>
-                                                    <button class="btn btn-outline-light btn-sm add-to-wishlist" 
-                                                            data-product-id="{{ product.id }}">
-                                                        <i class="fas fa-heart"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <!-- Badges -->
-                                            {% if product.featured %}
-                                                <span class="product-badge featured">
-                                                    <i class="fas fa-star"></i> {% trans "Featured" %}
-                                                </span>
-                                            {% endif %}
-                                            {% if product.old_price and product.old_price > product.price %}
-                                                <span class="product-badge discount">
-                                                    {{ product.get_percentage|floatformat:0 }}% {% trans "OFF" %}
-                                                </span>
-                                            {% endif %}
-                                        </div>
-
-                                        <div class="product-info p-3">
-                                            <h6 class="product-title">
-                                                <a href="{% url 'flame:product-detail' product.p_id %}" 
-                                                   class="text-decoration-none">
-                                                    {{ product.title|truncatechars:50 }}
-                                                </a>
-                                            </h6>
-
-                                            <!-- Rating -->
-                                            <div class="product-rating mb-2">
-                                                {% with avg_rating=product.get_average_rating %}
-                                                    {% if avg_rating %}
-                                                        <div class="stars">
-                                                            {% for i in "12345" %}
-                                                                <i class="fas fa-star {% if forloop.counter <= avg_rating %}text-warning{% else %}text-muted{% endif %}"></i>
-                                                            {% endfor %}
-                                                        </div>
-                                                        <span class="rating-count text-muted small">
-                                                            ({{ product.get_review_count }})
-                                                        </span>
-                                                    {% else %}
-                                                        <div class="stars">
-                                                            {% for i in "12345" %}
-                                                                <i class="far fa-star text-muted"></i>
-                                                            {% endfor %}
-                                                        </div>
-                                                        <span class="rating-count text-muted small">
-                                                            (0 {% trans "reviews" %})
-                                                        </span>
-                                                    {% endif %}
-                                                {% endwith %}
-                                            </div>
-
-                                            <!-- Price -->
-                                            <div class="product-price">
-                                                {% if product.old_price and product.old_price > product.price %}
-                                                    <span class="old-price text-muted">
-                                                        ${{ product.old_price|floatformat:2 }}
-                                                    </span>
-                                                {% endif %}
-                                                <span class="current-price text-primary fw-bold">
-                                                    ${{ product.price|floatformat:2 }}
-                                                </span>
-                                            </div>
-
-                                            <!-- Stock Status -->
-                                            <div class="stock-status mt-2">
-                                                {% if product.get_available_stock > 0 %}
-                                                    <span class="badge bg-success">
-                                                        <i class="fas fa-check"></i> {% trans "In Stock" %}
-                                                    </span>
-                                                {% else %}
-                                                    <span class="badge bg-danger">
-                                                        <i class="fas fa-times"></i> {% trans "Out of Stock" %}
-                                                    </span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
+                        <div>
+                            <h3>{{ group_name }}</h3>
+                            <p>
+                                {% if 'Popular' in group_name %}
+                                    {% trans "Products that are currently popular among all customers" %}
+                                {% elif 'Collaborative' in group_name %}
+                                    {% trans "Products loved by customers with similar taste" %}
+                                {% elif 'Content' in group_name %}
+                                    {% trans "Products similar to ones you've viewed or bought" %}
+                                {% elif 'Trending' in group_name %}
+                                    {% trans "Hot products trending right now" %}
+                                {% else %}
+                                    {% trans "Specially curated for you" %}
+                                {% endif %}
+                            </p>
                         </div>
-
-                        {% if products|length >= 8 %}
-                            <div class="text-center mt-4">
-                                <a href="{% url 'flame:product-list' %}?recommendation_type={{ group_name|lower }}" 
-                                   class="btn btn-outline-primary">
-                                    {% trans "View More" %} {{ group_name }}
-                                    <i class="fas fa-arrow-right ms-1"></i>
-                                </a>
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    {% if not forloop.last %}
-                        <hr class="my-5">
-                    {% endif %}
-                {% endfor %}
-            {% else %}
-                <!-- No Recommendations Yet -->
-                <div class="text-center py-5">
-                    <div class="mb-4">
-                        <i class="fas fa-magic fa-4x text-muted"></i>
-                    </div>
-                    <h3>{% trans "No Recommendations Yet" %}</h3>
-                    <p class="text-muted mb-4">
-                        {% trans "Start browsing and shopping to get personalized recommendations based on your interests!" %}
-                    </p>
-                    <div class="d-flex justify-content-center gap-3">
-                        <a href="{% url 'flame:product-list' %}" class="btn btn-primary">
-                            <i class="fas fa-shopping-cart"></i>
-                            {% trans "Browse Products" %}
-                        </a>
-                        <a href="{% url 'flame:category-list' %}" class="btn btn-outline-primary">
-                            <i class="fas fa-th-large"></i>
-                            {% trans "Shop by Category" %}
-                        </a>
                     </div>
                 </div>
-            {% endif %}
+
+                <div class="cx-grid">
+                    {% for product in products %}
+                        <article class="cx-product product-card">
+                            <!-- Badges -->
+                            {% if product.featured %}
+                                <span class="cx-badge product-badge featured">
+                                    <i class="fas fa-star"></i> {% trans "Featured" %}
+                                </span>
+                            {% endif %}
+                            {% if product.old_price and product.old_price > product.price %}
+                                <span class="cx-badge product-badge discount">
+                                    {{ product.get_percentage|floatformat:0 }}% {% trans "OFF" %}
+                                </span>
+                            {% endif %}
+
+                            <div class="cx-product-media product-image-container">
+                                <a href="{% url 'flame:product-detail' product.p_id %}" class="d-block w-100 h-100">
+                                    <img src="{{ product.image.url }}" alt="{{ product.title }}" class="product-image" loading="lazy">
+                                </a>
+                                <!-- Quick Actions -->
+                                <div class="product-overlay product-actions">
+                                    <a href="{% url 'flame:product-detail' product.p_id %}"
+                                       class="btn btn-primary btn-sm" aria-label="{{ product.title }}">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-outline-light btn-sm add-to-cart"
+                                            data-product-id="{{ product.id }}">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                    <button class="btn btn-outline-light btn-sm add-to-wishlist"
+                                            data-product-id="{{ product.id }}">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="cx-product-body product-info">
+                                <h3 class="cx-product-title product-title">
+                                    <a href="{% url 'flame:product-detail' product.p_id %}">{{ product.title|truncatechars:50 }}</a>
+                                </h3>
+
+                                <!-- Rating -->
+                                <div class="product-rating">
+                                    {% with avg_rating=product.get_average_rating %}
+                                        {% if avg_rating %}
+                                            <div class="stars">
+                                                {% for i in "12345" %}
+                                                    <i class="fas fa-star {% if forloop.counter <= avg_rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                                                {% endfor %}
+                                            </div>
+                                            <span class="rating-count text-muted small">
+                                                ({{ product.get_review_count }})
+                                            </span>
+                                        {% else %}
+                                            <div class="stars">
+                                                {% for i in "12345" %}
+                                                    <i class="far fa-star text-muted"></i>
+                                                {% endfor %}
+                                            </div>
+                                            <span class="rating-count text-muted small">
+                                                (0 {% trans "reviews" %})
+                                            </span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+
+                                <!-- Stock Status -->
+                                <div class="cx-product-meta stock-status">
+                                    {% if product.get_available_stock > 0 %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check"></i> {% trans "In Stock" %}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times"></i> {% trans "Out of Stock" %}
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Price -->
+                                <div class="cx-product-foot">
+                                    <div class="cx-price product-price">
+                                        {% if product.old_price and product.old_price > product.price %}
+                                            <span class="cx-old-price old-price">${{ product.old_price|floatformat:2 }}</span>
+                                        {% endif %}
+                                        <span class="current-price">${{ product.price|floatformat:2 }}</span>
+                                    </div>
+                                    <a href="{% url 'flame:product-detail' product.p_id %}" class="cx-btn-sm">{% trans "View" %}</a>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+
+                {% if products|length >= 8 %}
+                    <div class="ur-more">
+                        <a href="{% url 'flame:product-list' %}?recommendation_type={{ group_name|lower }}"
+                           class="btn btn-outline-primary">
+                            {% trans "View More" %} {{ group_name }}
+                            <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                {% endif %}
+            </section>
+        {% endfor %}
+    {% else %}
+        <!-- No Recommendations Yet -->
+        <div class="cx-empty ur-empty">
+            <i class="fas fa-wand-magic-sparkles ur-empty-icon"></i>
+            <h3>{% trans "No Recommendations Yet" %}</h3>
+            <p>
+                {% trans "Start browsing and shopping to get personalized recommendations based on your interests!" %}
+            </p>
+            <div class="ur-actions">
+                <a href="{% url 'flame:product-list' %}" class="btn btn-primary">
+                    <i class="fas fa-shopping-cart"></i>
+                    {% trans "Browse Products" %}
+                </a>
+                <a href="{% url 'flame:category-list' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-th-large"></i>
+                    {% trans "Shop by Category" %}
+                </a>
+            </div>
         </div>
-    </div>
+    {% endif %}
 </div>
-
-<style>
-.recommendation-icon {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #4A5C6A, #6c757d);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 20px;
-}
-
-.product-card {
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    background: white;
-}
-
-.product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    border-color: #4A5C6A;
-}
-
-.product-image-container {
-    position: relative;
-    height: 200px;
-    overflow: hidden;
-}
-
-.product-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.product-card:hover .product-image {
-    transform: scale(1.05);
-}
-
-.product-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.7);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.product-card:hover .product-overlay {
-    opacity: 1;
-}
-
-.product-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.product-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 4px 8px;
-    border-radius: 15px;
-    font-size: 11px;
-    font-weight: bold;
-    z-index: 2;
-}
-
-.product-badge.featured {
-    background: #ffd700;
-    color: #000;
-}
-
-.product-badge.discount {
-    background: #dc3545;
-    color: white;
-}
-
-.product-title a {
-    color: #333;
-    text-decoration: none;
-}
-
-.product-title a:hover {
-    color: #4A5C6A;
-}
-
-.stars {
-    display: inline-block;
-}
-
-.old-price {
-    text-decoration: line-through;
-    font-size: 0.9em;
-}
-
-.current-price {
-    font-size: 1.1em;
-}
-
-.recommendation-section {
-    background: #f8f9fa;
-    border-radius: 15px;
-    padding: 30px;
-    margin-bottom: 40px;
-}
-
-@media (max-width: 768px) {
-    .product-overlay {
-        opacity: 1;
-        background: rgba(0,0,0,0.5);
-    }
-    
-    .recommendation-section {
-        padding: 20px;
-    }
-}
-</style>
 
 <script>
 // Add to cart functionality

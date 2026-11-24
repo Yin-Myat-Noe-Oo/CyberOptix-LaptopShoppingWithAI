@@ -1,76 +1,113 @@
 {% extends 'partials/base.html' %}
+{% load i18n %}
 {% load static %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact CyberOptix Team</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #2A5C82;
-            --accent-color: #F5B041;
-        }
+<style>
+/* Info / policy pages - neon glass */
+.cx-docpage { max-width: 960px; padding: 0 0 24px; }
+.cx-doc-hero { text-align: center; padding: clamp(36px, 6vw, 64px) 0 clamp(20px, 3vw, 32px); }
+.cx-doc-hero h1 {
+  font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 700; margin: 16px 0 10px; line-height: 1.15;
+  background: linear-gradient(180deg, #fff 30%, #b9c6e4); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.cx-doc-hero p { color: var(--cx-muted); max-width: 620px; margin: 0 auto; font-size: 1.05rem; }
+.cx-doc { padding: clamp(22px, 4vw, 44px); line-height: 1.75; color: var(--cx-text); }
+.cx-doc > h1, .cx-doc > h2, .cx-doc > h3 {
+  font-family: var(--cx-display); color: var(--cx-heading); font-weight: 700; letter-spacing: -.01em;
+  margin: 34px 0 12px; display: flex; align-items: center; gap: 12px;
+}
+.cx-doc > h1 { font-size: clamp(1.4rem, 2.6vw, 1.8rem); }
+.cx-doc > h2 { font-size: clamp(1.15rem, 2.2vw, 1.4rem); }
+.cx-doc > h2::before, .cx-doc > h1::before {
+  content: ""; width: 4px; height: 1.1em; border-radius: 4px; background: var(--cx-grad); flex-shrink: 0;
+}
+.cx-doc > :first-child { margin-top: 0; }
+.cx-doc p { color: var(--cx-text); margin: 0 0 14px; opacity: .92; }
+.cx-doc strong { color: var(--cx-heading); font-weight: 600; }
+.cx-doc ol, .cx-doc ul { padding-left: 22px; margin: 0 0 16px; display: grid; gap: 8px; }
+.cx-doc li { color: var(--cx-text); padding-left: 4px; }
+.cx-doc li::marker { color: var(--cx-cyan); font-weight: 700; }
+.cx-doc > br, .cx-doc ul > br { display: none; }
+.cx-doc a { color: var(--cx-cyan); text-decoration: none; }
+.cx-doc a:hover { text-decoration: underline; }
+.cx-doc hr { margin: 28px 0; }
 
-        .team-card {
-            border: 2px solid var(--primary-color);
-            border-radius: 15px;
-            transition: transform 0.3s;
-        }
+/* Numbered sections (Services / Terms / Events) */
+.cx-doc .section {
+  padding: 20px 22px; margin-bottom: 16px; border-radius: 14px;
+  background: var(--cx-soft); border: 1px solid var(--cx-border); transition: border-color .25s, transform .25s;
+}
+.cx-doc .section:hover { border-color: rgba(34, 211, 238, .35); transform: translateY(-2px); }
+.cx-doc .section h2 { font-family: var(--cx-display); font-size: clamp(1.05rem, 2vw, 1.25rem); color: var(--cx-heading); font-weight: 600; margin: 0 0 12px; display: flex; align-items: center; gap: 12px; }
+.cx-doc .section h2 i {
+  width: 38px; height: 38px; flex-shrink: 0; border-radius: 11px; display: inline-grid; place-items: center; font-size: .95rem;
+  background: var(--cx-grad-soft); border: 1px solid var(--cx-border-strong); color: var(--cx-cyan);
+}
+.cx-doc .section ul, .cx-doc .section ol { margin-bottom: 0; }
+.cx-doc .section p:last-child { margin-bottom: 0; }
+.cx-doc > p:last-child { margin: 18px 0 0; padding: 14px 16px; border-radius: 12px; background: var(--cx-grad-soft); border: 1px solid var(--cx-border-strong); }
 
-        .team-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
+.cx-doc-foot { text-align: center; color: var(--cx-muted); font-size: .9rem; padding: 22px 0 0; }
 
-        .supervisor-section {
-            background: #f8f9fa;
-            border-left: 4px solid var(--accent-color);
-        }
+@media (max-width: 575px) {
+  .cx-doc { line-height: 1.65; }
+  .cx-doc .section { padding: 16px; }
+  .cx-doc .section h2 i { width: 32px; height: 32px; }
+}
 
-        .contact-icon {
-            width: 50px;
-            height: 50px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+/* Contact page */
+.cx-contact { padding-bottom: 24px; }
+.ct-title, .cx-contact h3, .cx-contact h4 { font-family: var(--cx-display); color: var(--cx-heading); font-weight: 700; }
+.ct-title { font-size: clamp(1.3rem, 2.6vw, 1.7rem); margin-bottom: 20px; }
+.team-card { border-radius: 18px; transition: transform .25s, border-color .25s, box-shadow .25s; }
+.team-card:hover { transform: translateY(-3px); border-color: rgba(34, 211, 238, .4); box-shadow: 0 18px 50px rgba(0, 0, 0, .45); }
+.team-card h5 { color: var(--cx-heading); font-size: 1.05rem; margin-bottom: 4px; }
+.team-card .text-muted { font-family: ui-monospace, Menlo, monospace; font-size: .8rem; }
+.ct-photo { width: 76px !important; height: 76px !important; object-fit: cover; flex-shrink: 0; border: 2px solid transparent;
+  background: linear-gradient(var(--cx-surface-solid), var(--cx-surface-solid)) padding-box, var(--cx-grad) border-box; }
+.contact-info { padding-top: 12px; border-top: 1px solid var(--cx-border); }
+.contact-info p { color: var(--cx-text); font-size: .9rem; word-break: break-word; }
+.contact-info i, .ct-connect p i { color: var(--cx-cyan); width: 16px; }
+.ct-form { position: sticky; top: calc(var(--cx-nav-h) + 20px); }
+.ct-form h4, .ct-connect h4 { font-size: 1.2rem; }
+.ct-form .form-control { min-height: 46px; }
+.supervisor-section { border-left: 3px solid var(--cx-cyan) !important; }
+.supervisor-section h3 { font-size: 1.3rem; }
+.supervisor-section h5 { color: var(--cx-heading); }
+.supervisor-section p { color: var(--cx-muted); }
+.ct-avatar { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; font-size: 2rem; color: #fff; background: var(--cx-grad); box-shadow: 0 10px 30px rgba(139, 92, 246, .4); }
+.map-container { border-radius: 18px; overflow: hidden; border: 1px solid var(--cx-border-strong); box-shadow: var(--cx-shadow); }
+.map-container iframe { display: block; filter: invert(.9) hue-rotate(180deg) saturate(.7) brightness(.95); }
+.ct-connect { height: 100%; background: linear-gradient(135deg, rgba(34, 211, 238, .12), rgba(139, 92, 246, .16)), var(--cx-surface) !important; border-color: var(--cx-border-strong) !important; }
+.ct-connect h5 { color: var(--cx-heading); }
+.ct-connect p { color: var(--cx-text); }
+.ct-social { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; color: var(--cx-heading) !important; border: 1px solid var(--cx-border-strong); background: var(--cx-soft); transition: all .2s; }
+.ct-social .fa-2x { font-size: 1.3rem; }
+.ct-social:hover { border-color: var(--cx-cyan); box-shadow: var(--cx-glow); color: var(--cx-cyan) !important; }
+@media (max-width: 767px) { .ct-form { position: static; } }
+</style>
 
-        .map-container {
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-    </style>
-</head>
-<body>
-
+<div class="cx-container cx-contact">
 <!-- Contact Header -->
-<section class="py-5 bg-primary text-white">
-    <div class="container text-center">
-        <h1 class="display-4 mb-3">Contact CyberOptix Team</h1>
-        <p class="lead">Student-Driven Tech Solutions | MIIT Third Year Project</p>
-    </div>
+<section class="cx-doc-hero">
+    <span class="cx-eyebrow"><i class="fas fa-headset"></i> CyberOptix</span>
+    <h1>{% trans "Contact CyberOptix Team" %}</h1>
+    <p>{% trans "Student-Driven Tech Solutions | MIIT Third Year Project" %}</p>
 </section>
 
 <!-- Main Content -->
-<div class="container py-5">
+<div class="ct-main">
     <!-- Team Contact -->
     <div class="row mb-5">
         <div class="col-md-8">
-            <h2 class="mb-4">Project Team Members</h2>
+            <h2 class="ct-title">{% trans "Project Team Members" %}</h2>
             <div class="row">
                 <!-- Team Member 1 -->
                 <div class="col-md-6 mb-4">
-                    <div class="team-card p-4 h-100">
+                    <div class="team-card cx-glass p-4 h-100">
                         <div class="d-flex align-items-center mb-3">
                             <img src="{% static 'assets/images/PMH.jpg' %}" 
-                                 class="rounded-circle me-3" alt="Moe Htet" width="120" height="145">
+                                 class="rounded-circle me-3 ct-photo" alt="Moe Htet" width="120" height="145">
                             <div>
                                 <h5>Phone Moe Htet</h5>
                                 <p class="text-muted mb-0">2022-MIIT-CSE-041</p>
@@ -85,10 +122,10 @@
 
                 <!-- Team Member 2 -->
                 <div class="col-md-6 mb-4">
-                    <div class="team-card p-4 h-100">
+                    <div class="team-card cx-glass p-4 h-100">
                         <div class="d-flex align-items-center mb-3">
                             <img src="{% static 'assets/images/YTHO.jpg' %}" 
-                                 class="rounded-circle me-3" alt="Yu Thet Htar Oo" width="120" height="145">
+                                 class="rounded-circle me-3 ct-photo" alt="Yu Thet Htar Oo" width="120" height="145">
                             <div>
                                 <h5>Yu Thet Htar Oo</h5>
                                 <p class="text-muted mb-0">2022-MIIT-CSE-054</p>
@@ -103,10 +140,10 @@
 
                 <!-- Team Member 3 -->
                 <div class="col-md-6 mb-4">
-                    <div class="team-card p-4 h-100">
+                    <div class="team-card cx-glass p-4 h-100">
                         <div class="d-flex align-items-center mb-3">
                             <img src="{% static 'assets/images/YMNO.jpg' %}" 
-                                 class="rounded-circle me-3" alt="Yin Myat Noe Oo" width="120" height="145">
+                                 class="rounded-circle me-3 ct-photo" alt="Yin Myat Noe Oo" width="120" height="145">
                             <div>
                                 <h5>Yin Myat Noe Oo</h5>
                                 <p class="text-muted mb-0">2022-MIIT-CSE-056</p>
@@ -121,10 +158,10 @@
 
                 <!-- Team Member 4 -->
                 <div class="col-md-6 mb-4">
-                    <div class="team-card p-4 h-100">
+                    <div class="team-card cx-glass p-4 h-100">
                         <div class="d-flex align-items-center mb-3">
                             <img src="{% static 'assets/images/ETZN.jpg' %}" 
-                                 class="rounded-circle me-3" alt="Ei Thuzar Nwe" width="120" height="145">
+                                 class="rounded-circle me-3 ct-photo" alt="Ei Thuzar Nwe" width="120" height="145">
                             <div>
                                 <h5>Ei Thuzar Nwe</h5>
                                 <p class="text-muted mb-0">2022-MIIT-CSE-058</p>
@@ -144,22 +181,22 @@
 
         <!-- Quick Contact Form -->
         <div class="col-md-4">
-            <div class="bg-light p-4 rounded shadow">
-                <h4 class="mb-4">Send Us a Message</h4>
+            <div class="cx-glass p-4 ct-form">
+                <h4 class="mb-4">{% trans "Send Us a Message" %}</h4>
                 <form>
                     <div class="mb-3">
-                        <input type="text" class="form-control" placeholder="Your Name">
+                        <input type="text" class="form-control" placeholder="{% trans 'Your Name' %}">
                     </div>
                     <div class="mb-3">
-                        <input type="email" class="form-control" placeholder="Email Address">
+                        <input type="email" class="form-control" placeholder="{% trans 'Email Address' %}">
                     </div>
                     <div class="mb-3">
-                        <input type="text" class="form-control" placeholder="Subject">
+                        <input type="text" class="form-control" placeholder="{% trans 'Subject' %}">
                     </div>
                     <div class="mb-3">
-                        <textarea class="form-control" rows="4" placeholder="Your Message"></textarea>
+                        <textarea class="form-control" rows="4" placeholder="{% trans 'Your Message' %}"></textarea>
                     </div>
-                    <button class="btn btn-primary w-100">Send Message</button>
+                    <button class="btn btn-primary w-100">{% trans "Send Message" %}</button>
                 </form>
             </div>
         </div>
@@ -168,18 +205,17 @@
     <!-- Academic Supervision -->
     <div class="row mb-5">
         <div class="col-12">
-            <div class="supervisor-section p-4 rounded">
-                <h3 class="mb-4">Academic Supervision</h3>
+            <div class="supervisor-section cx-glass p-4">
+                <h3 class="mb-4">{% trans "Academic Supervision" %}</h3>
                 <div class="d-flex align-items-center">
                     <div class="me-4">
-                        <img src="https://source.unsplash.com/100x100/?professor" 
-                             class="rounded-circle" alt="Dr. Sin Thi Yar Myint">
+                        <div class="ct-avatar" role="img" aria-label="Dr. Sin Thi Yar Myint"><i class="fas fa-user-tie"></i></div>
                     </div>
                     <div>
                         <h5>Dr. Sin Thi Yar Myint</h5>
-                        <p class="mb-1">Professor, Faculty of Computer Science</p>
-                        <p class="mb-1">Myanmar Institute of Information Technology</p>
-                        <p class="mb-0">Mandalay, Myanmar</p>
+                        <p class="mb-1">{% trans "Professor, Faculty of Computer Science" %}</p>
+                        <p class="mb-1">{% trans "Myanmar Institute of Information Technology" %}</p>
+                        <p class="mb-0">{% trans "Mandalay, Myanmar" %}</p>
                     </div>
                 </div>
             </div>
@@ -195,30 +231,27 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="bg-primary text-white p-4 rounded">
-                <h4 class="mb-4">Connect With Us</h4>
+            <div class="cx-glass p-4 ct-connect">
+                <h4 class="mb-4">{% trans "Connect With Us" %}</h4>
                 <div class="d-flex gap-3 mb-4">
-                    <a href="#" class="text-white"><i class="fab fa-facebook fa-2x"></i></a>
-                    <a href="#" class="text-white"><i class="fab fa-telegram fa-2x"></i></a>
-                    <a href="#" class="text-white"><i class="fab fa-instagram fa-2x"></i></a>
+                    <a href="#" class="ct-social"><i class="fab fa-facebook fa-2x"></i></a>
+                    <a href="#" class="ct-social"><i class="fab fa-telegram fa-2x"></i></a>
+                    <a href="#" class="ct-social"><i class="fab fa-instagram fa-2x"></i></a>
                 </div>
-                <h5>Project Inquiries</h5>
-                <p>For collaboration or business opportunities:</p>
+                <h5>{% trans "Project Inquiries" %}</h5>
+                <p>{% trans "For collaboration or business opportunities:" %}</p>
                 <p><i class="fas fa-envelope me-2"></i>cyberoptix@gmail.com</p>
-                <p><i class="fas fa-clock me-2"></i>Response within 24 hours</p>
+                <p><i class="fas fa-clock me-2"></i>{% trans "Response within 24 hours" %}</p>
             </div>
         </div>
     </div>
 </div>
 
-<footer class="bg-dark text-white py-4">
-    <div class="container text-center">
-        <p class="mb-0">&copy; 2024 CyberOptix - MIIT Third Year Project by INFERNO</p>
-        <p class="mb-0">Academic Research Project | Not for Commercial Use</p>
+<div class="cx-doc-foot">
+    <div>
+        <p class="mb-0">{% trans "&copy; 2024 CyberOptix - MIIT Third Year Project by INFERNO" %}</p>
+        <p class="mb-0">{% trans "Academic Research Project | Not for Commercial Use" %}</p>
     </div>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>
+</div>
 {% endblock %}

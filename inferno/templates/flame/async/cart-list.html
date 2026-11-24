@@ -1,159 +1,20 @@
+{% load i18n %}
+{% load static i18n %}
 {% load math_filters %}
 
+<link rel="stylesheet" type="text/css" href="{% static 'assets/css/shop-cart.css' %}">
 <style>
-    /* Updated Cart Page Styles */
-.cart-page {
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    font-family: Arial, sans-serif;
-    color: #333; /* Base text color */
-}
-
-.cart-container {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-    padding: 2rem;
-}
-
-.cart-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem 0;
-    border-bottom: 2px solid #eee;
-    font-weight: bold;
-    color: #666; /* Grey header text */
-    gap: 2rem;
-}
-
-.cart-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 0;
-    border-bottom: 1px solid #eee;
-    color: #444; /* Dark grey item text */
-    gap: 2rem;
-}
-
-.product-info {
-    display: flex;
-    align-items: center;
-    width: 35%;
-    min-width: 300px;
-}
-
-.product-info h3 {
-    color: #222; /* Darker text for product titles */
-}
-
-.cart-item-img {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
-    margin-right: 1.5rem;
-}
-
-.price-column {
-    width: 15%;
-    text-align: right;
-    color: #555; /* Medium grey for prices */
-    padding-right: 2rem; /* Added right padding */
-}
-
-
-.quantity-control {
-    width: 20%;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0 1rem; /* Added horizontal padding */
-}
-
-.cart-qty {
-    width: 70px;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    color: #333; /* Dark text for input */
-    text-align: center;
-}
-
-.actions-column {
-    width: 15%;
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-}
-
-.btn-update, .btn-delete {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #666; /* Grey icons */
-    padding: 0.5rem;
-    transition: color 0.2s;
-}
-
-.btn-delete:hover {
-    color: #ff4444;
-}
-
-/* Button Styles */
-.cart-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: space-between;
-    margin-top: 2rem;
-}
-
-.continue-btn {
-    background: #f8f9fa;
-    color: #333;
-    padding: 1rem 2rem;
-    border-radius: 4px;
-    text-decoration: none;
-    border: 1px solid #ddd;
-    transition: all 0.3s ease;
-}
-
-.continue-btn:hover {
-    background: #e9ecef;
-    border-color: #ccc;
-}
-
-.checkout-btn {
-    background: #007bff;
-    color: white;
-    padding: 1rem 2rem;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: background 0.3s ease;
-}
-
-.checkout-btn:hover {
-    background: #0056b3;
-}
-
-/* Summary Styles */
-.cart-summary {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    width: 300px;
-    margin-left: auto;
-}
-
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-    color: #555; /* Grey summary text */
-}
-
-.summary-row strong {
-    color: #333; /* Darker text for total */
-}
+  /* Legacy single-cart layout on the neon-glass cart styles */
+  .cart-container { padding: 6px 22px 22px; }
+  .cart-container > h3 { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 700; color: var(--cx-heading); margin: 18px 0 16px; }
+  .cart-item .quantity-control { display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .btn-update { width: 38px; height: 38px; border-radius: 10px; display: inline-grid; place-items: center; background: var(--cx-soft); color: var(--cx-text); border: 1px solid var(--cx-border-strong); cursor: pointer; }
+  .btn-update:hover { border-color: var(--cx-cyan); box-shadow: var(--cx-glow); }
+  .cart-summary { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--cx-border); display: grid; gap: 10px; max-width: 360px; margin-left: auto; }
+  .cart-summary .summary-row { padding-bottom: 10px; }
+  .cart-actions { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+  .checkout-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border-radius: 12px; background: var(--cx-grad); color: #fff !important; font-weight: 600; text-decoration: none; }
+  @media (max-width: 720px) { .cart-container { padding: 4px 16px 16px; } .cart-actions > a { flex: 1 1 100%; justify-content: center; } }
 </style>
 
     <div id="cart-list">
@@ -194,7 +55,7 @@
             
             <div class="summary-row">
                 <span>{% trans "Shipping:" %}</span>
-                <span>Free</span>
+                <span>{% trans "Free" %}</span>
             </div>
             <div class="summary-row">
                 <strong>{% trans "Total:" %}</strong>

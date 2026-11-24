@@ -28,6 +28,7 @@ from flame.views import home
 from flame.kbzpay_integration import initiate_kbzpay_payment, kbzpay_callback, check_payment_status
 from flame import views as flame_views
 from flame.paypal_dynamic import create_paypal_payment_with_shipping
+from verasChatbot import views as veras_views
 
 
 
@@ -52,6 +53,10 @@ urlpatterns = [
 
     # PayPal Payment (outside i18n to avoid language prefix issues)
     path('api/create-paypal-payment/<str:sid>/', create_paypal_payment_with_shipping, name='create-paypal-payment'),
+
+    # Veras AI chatbot API (outside i18n so the widget works on every language prefix)
+    path('veras/api/', veras_views.chat_api, name='veras-chat-api'),
+    path('chatbot-reply', veras_views.chat_api),  # legacy endpoint used by older templates
 
     # KBZPay Mock Payment Gateway (outside i18n for consistency)
     path('kbzpay/', include('kbzpay_mock.urls')),

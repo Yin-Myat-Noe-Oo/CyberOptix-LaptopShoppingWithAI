@@ -1,84 +1,65 @@
-{% comment %} {% extends 'partials/base.html' %}
-{% load static %}
-{% block content %}
-<link rel="stylesheet" type="text/css" href="{% static 'assets/css/Profile.css' %}">
-<link rel="stylesheet" type="text/css" href="bootstrap-4.5.3-dist/css/bootstrap.min.css">
-
-<div class="dashboard-container">
-    <!-- Sidebar Navigation -->
-    <div class="sidebar"> 
-        <div class="sidebar flex-column mt-4 text-center">
-            <img src="{% static 'images/profile.jpg' %}" class="round">
-            <a class="sidebar-link" href="{% url "flame:profile" %}">{% trans "Profile" %}</a>
-            <a class="sidebar-link active" href="{% url "flame:profile" %}">{% trans "Orders" %}</a>
-            <a class="sidebar-link" href="{% url 'userauths:sign-out' %}">{% trans "Logout" %}</a>
-        </div>
-    </div>
-
-    <!-- Order Details Content -->
-    <div class="content-section">
-        <div class="Pcard">
-            <a href="{% url 'flame:profile' %}" class="btn btn-secondary mb-3">← {% trans "Back to Orders" %}</a>
-            <h3>Order Details: INVOICE_NO-{{ order_items.0.order.id }}</h3>
-            <table class="order-table">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Image</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in order_items %}
-                    <tr>
-                        <td>{{ item.item }}</td>
-                        <td>
-                            <p><img src="{{ item.image }}" class="product-img" style="width:60px; height:60px; object-fit: cover;"  alt="{{ item.title }}"></p>
-                        </td>
-                        <td>${{ item.price }}</td>
-                        <td>{{ item.qty }}</td>
-                        <td>${{ item.total }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            
-        </div>
-    </div>
-</div>
-
-{% endblock content %} {% endcomment %}
-
-
 {% extends 'partials/base.html' %}
 {% load static %}
 {% load i18n %}
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{% static 'assets/css/Profile.css' %}">
-<link rel="stylesheet" type="text/css" href="bootstrap-4.5.3-dist/css/bootstrap.min.css">
+<style>
+  .od-shell { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 24px; align-items: start; padding: 32px 0 48px; }
+  .od-side { position: sticky; top: calc(var(--cx-nav-h) + 20px); padding: 18px; display: flex; flex-direction: column; gap: 4px; }
+  .od-side .round { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; margin: 4px auto 14px; border: 2px solid var(--cx-border-strong); background: var(--cx-surface-2); }
+  .od-side .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; color: var(--cx-text); text-decoration: none; border: 1px solid transparent; font-weight: 500; }
+  .od-side .sidebar-link i { width: 18px; text-align: center; color: var(--cx-muted); }
+  .od-side .sidebar-link:hover { background: var(--cx-soft); color: var(--cx-heading); }
+  .od-side .sidebar-link.active { background: var(--cx-grad-soft); border-color: var(--cx-border-strong); color: var(--cx-heading); }
+  .od-side .sidebar-link.active i, .od-side .sidebar-link:hover i { color: var(--cx-cyan); }
 
-<div class="dashboard-container">
+  .od-card { padding: clamp(18px, 3vw, 28px); }
+  .od-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .od-head h1 { font-size: clamp(1.3rem, 2.6vw, 1.8rem); margin: 10px 0 0; font-weight: 700; color: var(--cx-heading); }
+
+  .od-table-wrap { overflow-x: auto; border: 1px solid var(--cx-border); border-radius: 14px; }
+  .order-table { width: 100%; border-collapse: collapse; min-width: 520px; color: var(--cx-text); }
+  .order-table th { padding: 12px 14px; text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--cx-muted); background: var(--cx-soft); border-bottom: 1px solid var(--cx-border); }
+  .order-table td { padding: 12px 14px; border-bottom: 1px solid var(--cx-border); vertical-align: middle; }
+  .order-table tbody tr:last-child td { border-bottom: 0; }
+  .order-table tbody tr:hover td { background: rgba(34, 211, 238, .04); }
+  .order-table td p { margin: 0; }
+  .order-table .product-img { border-radius: 10px; background: radial-gradient(circle at 50% 40%, var(--cx-surface-2), var(--cx-bg-2)); border: 1px solid var(--cx-border); object-fit: contain !important; padding: 4px; }
+  .order-table td:first-child { color: var(--cx-heading); font-weight: 600; }
+  .order-table td:last-child { color: var(--cx-heading); font-weight: 700; }
+
+  @media (max-width: 860px) {
+    .od-shell { grid-template-columns: 1fr; padding-top: 20px; }
+    .od-side { position: static; flex-direction: row; overflow-x: auto; padding: 10px; }
+    .od-side .round { display: none; }
+    .od-side .sidebar-link { flex-shrink: 0; }
+  }
+</style>
+
+<div class="dashboard-container od-shell cx-container">
     <!-- Sidebar Navigation -->
-    <div class="sidebar"> 
-        <div class="sidebar flex-column mt-4 text-center">
-            <img src="{% static 'images/profile.jpg' %}" class="round" alt="{% trans 'Profile picture' %}">
-            <a class="sidebar-link" href="{% url 'flame:profile' %}">{% trans "Profile" %}</a>
-            <a class="sidebar-link active" href="{% url 'flame:profile' %}">{% trans "Orders" %}</a>
-            <a class="sidebar-link" href="{% url 'userauths:sign-out' %}">{% trans "Logout" %}</a>
-        </div>
-    </div>
+    <aside class="od-side cx-glass">
+        <img src="{% static 'images/profile.jpg' %}" class="round" alt="{% trans 'Profile picture' %}" onerror="this.style.display='none'">
+        <a class="sidebar-link" href="{% url 'flame:profile' %}"><i class="fas fa-user"></i> {% trans "Profile" %}</a>
+        <a class="sidebar-link active" href="{% url 'flame:profile' %}"><i class="fas fa-bag-shopping"></i> {% trans "Orders" %}</a>
+        <a class="sidebar-link" href="{% url 'userauths:sign-out' %}"><i class="fas fa-right-from-bracket"></i> {% trans "Logout" %}</a>
+    </aside>
 
     <!-- Order Details Content -->
     <div class="content-section">
-        <div class="Pcard">
-            <a href="{% url 'flame:profile' %}" class="btn btn-secondary mb-3">← {% trans "Back to Orders" %}</a>
+        <div class="Pcard od-card cx-glass">
+            <div class="od-head">
+                <div>
+                    <span class="cx-eyebrow"><i class="fas fa-receipt"></i> {% trans "Orders" %}</span>
+                    <h1>
+                    {% blocktrans with invoice=order_items.0.order.id %}
+                        Order Details: INVOICE_NO-{{ invoice }}
+                    {% endblocktrans %}
+                    </h1>
+                </div>
+                <a href="{% url 'flame:profile' %}" class="btn btn-secondary">← {% trans "Back to Orders" %}</a>
+            </div>
 
-            {% blocktrans with invoice=order_items.0.order.id %}
-                Order Details: INVOICE_NO-{{ invoice }}
-            {% endblocktrans %}
-
+            <div class="od-table-wrap">
             <table class="order-table">
                 <thead>
                     <tr>
@@ -108,7 +89,7 @@
                     {% endfor %}
                 </tbody>
             </table>
-            
+            </div>
         </div>
     </div>
 </div>

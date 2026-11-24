@@ -31,7 +31,7 @@ def initiate_kbzpay_payment(request, order_id):
                 'name': str(item.item),
                 'quantity': item.qty,
                 'price': float(item.price),
-                'total': float(item.total())
+                'total': float(item.total)
             })
 
         # Get address data from session and update order if needed
@@ -89,10 +89,10 @@ def initiate_kbzpay_payment(request, order_id):
             'partner_id': '2018082000010170',  # Mock credentials
             'seller_id': '2018082000010170',
             'appid': '2018082000010171',
-            'out_trade_no': str(order.oid),
+            'out_trade_no': str(order.order_number),
             'total_amount': str(order.price),
             'currency': 'MMK',
-            'subject': f'LaptopMart Order #{order.oid}',
+            'subject': f'LaptopMart Order #{order.order_number}',
             'notify_url': request.build_absolute_uri('/payment/kbzpay/callback/'),
             'order_data': json.dumps(order_data)  # Pass order data
         }
@@ -108,7 +108,7 @@ def initiate_kbzpay_payment(request, order_id):
 
         if response_data.get('code') == 'SUCCESS':
             # Store prepay_id in session for later verification
-            request.session[f'kbzpay_prepay_{order.oid}'] = response_data['data']['prepay_id']
+            request.session[f'kbzpay_prepay_{order.order_number}'] = response_data['data']['prepay_id']
 
             return JsonResponse({
                 'success': True,
@@ -162,7 +162,7 @@ def kbzpay_callback(request):
         if trade_status == 'TRADE_SUCCESS':
             # Update order status
             try:
-                order = CartOrder.objects.get(oid=out_trade_no)
+                order = CartOrder.objects.get(order_number=out_trade_no)
                 order.paid_status = True
                 order.payment_method = 'KBZPay'
                 order.save()
@@ -186,7 +186,7 @@ def check_payment_status(request, order_id):
         order = CartOrder.objects.get(id=order_id, user=request.user)
 
         # Get prepay_id from session
-        prepay_id = request.session.get(f'kbzpay_prepay_{order.oid}')
+        prepay_id = request.session.get(f'kbzpay_prepay_{order.order_number}')
 
         if not prepay_id:
             return JsonResponse({
@@ -197,7 +197,7 @@ def check_payment_status(request, order_id):
         # Query payment status from KBZPay
         api_url = request.build_absolute_uri('/kbzpay/api/query/')
         response = requests.post(api_url, json={
-            'out_trade_no': str(order.oid),
+            'out_trade_no': str(order.order_number),
             'prepay_id': prepay_id
         })
 

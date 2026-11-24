@@ -1,0 +1,9 @@
+{% load i18n %}
+{# Returned by add_to_wishlist for AJAX callers that append a single row #}
+<div class="cx-glass" style="display:flex;gap:12px;align-items:center;padding:10px;margin-bottom:8px;">
+    <img src="{{ w.product.image.url }}" alt="{{ w.product.title }}" style="width:64px;height:52px;object-fit:contain;border-radius:10px;background:var(--cx-surface-2);">
+    <div style="flex:1;min-width:0;">
+        <div style="color:var(--cx-heading);font-weight:600;">{{ w.product.title }}</div>
+        <div style="color:var(--cx-muted);font-size:.85rem;">${{ w.product.price|floatformat:2 }}</div>
+    </div>
+</div>

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CyberOptix demo composer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* 1920x1080 canvas in the style of the reference video: off-white page, numbered
+     chapters with step pills, framed screenshots with highlight boxes + orange callouts,
+     a chapter timeline on the right and a caption line at the bottom. */
+  :root {
+    --bg: #f4f5f0; --ink: #0f172a; --muted: #64748b; --line: #d6dbd3;
+    --accent: #7c3aed; --accent2: #0891b2; --teal: #14b8a6; --orange: #c2410c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); font-family: Inter, system-ui, sans-serif; color: var(--ink); }
+  #stage { position: absolute; inset: 0; }
+  .layer { position: absolute; inset: 0; will-change: opacity, transform; }
+
+  /* headline scenes */
+  .headline { position: absolute; left: 0; right: 0; top: 70px; text-align: center; font-family: "Space Grotesk", Inter, sans-serif; font-weight: 600; font-size: 64px; letter-spacing: -.01em; }
+  .headline em { font-style: normal; background: linear-gradient(90deg, var(--accent2), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .logo { display: flex; align-items: center; justify-content: center; gap: 26px; font-family: "Space Grotesk"; font-weight: 700; font-size: 120px; }
+  .mark { width: 128px; height: 128px; border-radius: 32px; display: grid; place-items: center; color: #fff; font-size: 72px;
+          background: linear-gradient(135deg, #22d3ee, #8b5cf6 55%, #ec4899); box-shadow: 0 24px 60px rgba(139, 92, 246, .35); }
+  .tagline { text-align: center; font-size: 40px; font-weight: 500; margin-top: 26px; }
+  .url { display: inline-block; margin-top: 28px; padding: 10px 30px; border-radius: 999px; border: 2px solid var(--accent2); color: var(--accent2); font-weight: 600; font-size: 32px; }
+
+  /* feature grid (intro) */
+  .features { position: absolute; left: 160px; right: 160px; top: 260px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
+  .feature { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 28px 26px; box-shadow: 0 10px 30px rgba(15, 23, 42, .06); }
+  .feature .ic { font-size: 40px; }
+  .feature h4 { font-size: 26px; margin: 14px 0 6px; font-family: "Space Grotesk"; }
+  .feature p { font-size: 19px; color: var(--muted); line-height: 1.35; }
+  .feature.ai { border-color: rgba(124, 58, 237, .45); box-shadow: 0 10px 30px rgba(124, 58, 237, .12); }
+  .feature.ai h4 { color: var(--accent); }
+
+  /* chapter scenes */
+  .chapter { position: absolute; left: 70px; top: 46px; display: flex; align-items: center; gap: 18px; }
+  .chapter .num { color: var(--orange); font-weight: 700; font-size: 28px; font-family: "Space Grotesk"; }
+  .chapter .title { font-size: 44px; font-weight: 600; font-family: "Space Grotesk"; }
+  .pills { display: flex; gap: 10px; margin-left: 18px; }
+  .pill { font-size: 20px; padding: 6px 16px; border-radius: 999px; color: var(--ink); background: transparent; transition: none; }
+  .pill.on { background: var(--teal); color: #fff; font-weight: 600; }
+
+  .frame { position: absolute; left: 70px; top: 128px; width: 1440px; height: 820px; border-radius: 18px; overflow: hidden;
+           background: #0b1020; box-shadow: 0 30px 70px rgba(15, 23, 42, .22); }
+  .frame.light { background: #fff; }
+  .frame .bar { height: 34px; background: #1f2433; display: flex; align-items: center; gap: 8px; padding: 0 14px; }
+  .frame .bar i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .frame .bar .addr { margin-left: 18px; flex: 1; max-width: 640px; height: 22px; border-radius: 6px; background: #2b3245; color: #cbd5e1; font-size: 14px; display: flex; align-items: center; padding: 0 10px; }
+  .shot-wrap { position: absolute; top: 34px; left: 0; right: 0; bottom: 0; overflow: hidden; }
+  .shot { position: absolute; left: 0; top: 0; width: 100%; transform-origin: 0 0; }
+  .hl { position: absolute; border: 4px solid var(--teal); border-radius: 12px; box-shadow: 0 0 0 9999px rgba(2, 6, 23, .32), 0 0 24px rgba(20, 184, 166, .7); }
+  .callout { position: absolute; background: var(--orange); color: #fff; font-weight: 600; font-size: 22px; padding: 9px 20px; border-radius: 999px; white-space: nowrap; box-shadow: 0 8px 20px rgba(194, 65, 12, .35); }
+  .cursor { position: absolute; width: 30px; height: 30px; pointer-events: none; }
+  .cursor svg { filter: drop-shadow(0 2px 3px rgba(0,0,0,.45)); }
+  .click-ring { position: absolute; width: 54px; height: 54px; border-radius: 50%; border: 3px solid var(--orange); }
+
+  .timeline { position: absolute; left: 1560px; top: 300px; display: grid; gap: 14px; }
+  .timeline div { display: flex; align-items: center; gap: 14px; font-size: 19px; color: var(--muted); }
+  .timeline span { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--teal); background: var(--bg); flex: none; }
+  .timeline .on { color: var(--ink); font-weight: 700; }
+  .timeline .on span { background: var(--teal); }
+  .timeline .done span { background: rgba(20, 184, 166, .35); }
+
+  .note { position: absolute; left: 70px; top: 958px; font-size: 15px; color: var(--muted); }
+  .caption { position: absolute; left: 70px; right: 70px; top: 996px; font-size: 27px; color: var(--ink); }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+/* window.SCENES is injected by render.py. window.renderAt(t) draws the frame at time t (seconds)
+   deterministically - no CSS transitions - so frames can be captured one by one. */
+const CHAPTERS = window.CHAPTERS || [];
+const stage = document.getElementById('stage');
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const ease = (x) => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const fade = (t, dur, f = .45) => clamp(Math.min(t / f, (dur - t) / f));
+const CURSOR = '<svg width="30" height="30" viewBox="0 0 24 24"><path d="M4 2l15 9-7 1.5L8.5 20z" fill="#fff" stroke="#0f172a" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+
+function sceneAt(t) {
+  let acc = 0;
+  for (const s of window.SCENES) { if (t < acc + s.dur) return [s, t - acc]; acc += s.dur; }
+  const last = window.SCENES[window.SCENES.length - 1];
+  return [last, last.dur];
+}
+
+function headline(s, lt) {
+  const o = fade(lt, s.dur);
+  let html = `<div class="layer" style="opacity:${o}">`;
+  if (s.headline) html += `<div class="headline" style="transform:translateY(${(1 - ease(lt / .6)) * 20}px)">${s.headline}</div>`;
+  if (s.logo) html += `<div style="position:absolute;left:0;right:0;top:${s.headline ? 300 : 330}px;text-align:center">
+      <div class="logo"><span class="mark">⚡</span><span>Cyber<span style="background:linear-gradient(90deg,#0891b2,#7c3aed);-webkit-background-clip:text;color:transparent">Optix</span></span></div>
+      ${s.tagline ? `<div class="tagline">${s.tagline}</div>` : ''}${s.url ? `<div class="url">${s.url}</div>` : ''}</div>`;
+  if (s.features) {
+    html += '<div class="features">' + s.features.map((f, i) => {
+      const fo = ease((lt - .4 - i * .22) / .5);
+      return `<div class="feature ${f.ai ? 'ai' : ''}" style="opacity:${fo};transform:translateY(${(1 - fo) * 24}px)">
+        <div class="ic">${f.icon}</div><h4>${f.title}</h4><p>${f.text}</p></div>`;
+    }).join('') + '</div>';
+  }
+  if (s.image) {
+    const z = 1 + .03 * (lt / s.dur);
+    html += `<div class="frame" style="left:${(1920 - 1280) / 2}px;top:210px;width:1280px;height:720px">
+      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><div class="addr">${s.url_bar || ''}</div></div>
+      <div class="shot-wrap"><img class="shot" src="${s.image}" style="transform:scale(${z})"></div></div>`;
+  }
+  html += `</div>`;
+  if (s.caption) html += `<div class="caption" style="opacity:${o}">${s.caption}</div>`;
+  return html;
+}
+
+function chapter(s, lt) {
+  const o = fade(lt, s.dur, .35);
+  const steps = s.steps;                       // [{pill, at, image, hl, callout, cursor, scroll}]
+  let i = 0; for (let k = 0; k < steps.length; k++) if (lt >= steps[k].at) i = k;
+  const st = steps[i], next = steps[i + 1];
+  const local = lt - st.at, stepDur = (next ? next.at : s.dur) - st.at;
+  const shotO = i === 0 ? 1 : ease(local / .35);
+  const prev = i > 0 ? steps[i - 1] : null;
+
+  const pills = (s.pills || []).map((p) => `<span class="pill ${p === st.pill ? 'on' : ''}">${p}</span>`).join('');
+  const tl = CHAPTERS.map((c, k) => `<div class="${k === s.chapterIndex ? 'on' : k < s.chapterIndex ? 'done' : ''}"><span></span>${c}</div>`).join('');
+
+  // screenshot with a slow push-in; optional vertical scroll (fraction of image height)
+  const W = 1440, H = 820 - 34;
+  const zoom = 1 + (st.zoom || .025) * ease(local / Math.max(stepDur, .1));
+  const sy = (st.scrollFrom ?? st.scroll ?? 0) + ((st.scroll ?? 0) - (st.scrollFrom ?? st.scroll ?? 0)) * ease(local / Math.max(stepDur * .7, .1));
+  const imgH = st.imgH || 900;                // image height in screenshot px (W=1440 basis)
+  const ty = -sy * imgH;
+  const imgLayer = (stp, op, z, y) => `<img class="shot" src="${stp.image}" style="opacity:${op};transform:translateY(${y}px) scale(${z})">`;
+
+  let hl = '';
+  if (st.hl && local > .45) {
+    const ho = ease((local - .45) / .35);
+    const [x, y, w, h] = st.hl;                // in screenshot px (1440 basis), before zoom
+    const pad = 8;
+    const X = (x - pad) * zoom, Y = ((y - pad) + ty) * zoom, Wd = (w + pad * 2) * zoom, Ht = (h + pad * 2) * zoom;
+    hl = `<div class="hl" style="opacity:${ho};left:${X}px;top:${Y}px;width:${Wd}px;height:${Ht}px"></div>`;
+    if (st.callout) {
+      const below = Y + Ht + 70 < H, cx = Math.min(Math.max(X, 20), W - 560);
+      hl += `<div class="callout" style="opacity:${ho};left:${cx}px;top:${below ? Y + Ht + 16 : Y - 58}px">${st.callout}</div>`;
+    }
+    if (st.click) {
+      const cx = X + Wd / 2, cy = Y + Ht / 2;
+      const cp = clamp((local - .5) / .9);
+      const sx = cx + 260 * (1 - ease(cp)), syy = cy + 180 * (1 - ease(cp));
+      hl += `<div class="cursor" style="left:${sx}px;top:${syy}px">${CURSOR}</div>`;
+      if (cp >= 1 && local < 2.1) {
+        const r = clamp((local - 1.4) / .6);
+        hl += `<div class="click-ring" style="left:${cx - 27}px;top:${cy - 27}px;opacity:${1 - r};transform:scale(${.5 + r})"></div>`;
+      }
+    }
+  }
+
+  return `<div class="layer" style="opacity:${o}">
+    <div class="chapter"><span class="num">${String(s.chapterIndex + 1).padStart(2, '0')}</span><span class="title">${s.title}</span><div class="pills">${pills}</div></div>
+    <div class="frame">
+      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><div class="addr">${st.url || ''}</div></div>
+      <div class="shot-wrap">
+        ${prev && shotO < 1 ? imgLayer(prev, 1, 1 + (prev.zoom || .025), -(prev.scroll || 0) * (prev.imgH || 900)) : ''}
+        ${imgLayer(st, shotO, zoom, ty)}
+        ${hl}
+      </div>
+    </div>
+    <div class="timeline">${tl}</div>
+    ${st.note || s.note ? `<div class="note">${st.note || s.note}</div>` : ''}
+    <div class="caption">${st.caption || ''}</div>
+  </div>`;
+}
+
+/* Live-video mode: draw everything except the video (header, pills, browser bar, chapter
+   timeline, note, caption). The video is overlaid by ffmpeg at window.LIVE_RECT. */
+window.LIVE_RECT = { x: 70, y: 152, w: 1408, h: 792 };
+window.renderChrome = function (c) {
+  const R = window.LIVE_RECT;
+  const pills = (c.pills || []).map((p) => `<span class="pill ${p === c.pill ? 'on' : ''}">${p}</span>`).join('');
+  const tl = CHAPTERS.map((n, k) => `<div class="${k === c.chapterIndex ? 'on' : k < c.chapterIndex ? 'done' : ''}"><span></span>${n}</div>`).join('');
+  stage.innerHTML = `<div class="layer">
+    <div class="chapter" style="top:40px">${c.chapterIndex >= 0 ? `<span class="num">${String(c.chapterIndex + 1).padStart(2, '0')}</span>` : ''}<span class="title">${c.title}</span><div class="pills">${pills}</div></div>
+    <div class="frame" style="left:${R.x}px;top:${R.y - 34}px;width:${R.w}px;height:${R.h + 34}px">
+      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><div class="addr">${c.url || ''}</div></div>
+    </div>
+    <div class="timeline" style="left:1530px;top:290px">${tl}</div>
+    ${c.note ? `<div class="note" style="top:${R.y + R.h + 10}px">${c.note}</div>` : ''}
+    <div class="caption" style="top:${R.y + R.h + 40}px;font-size:26px">${c.caption || ''}</div>
+  </div>`;
+};
+
+window.renderAt = function (t) {
+  const [s, lt] = sceneAt(t);
+  stage.innerHTML = s.type === 'chapter' ? chapter(s, lt) : headline(s, lt);
+};
+window.totalDuration = () => window.SCENES.reduce((a, s) => a + s.dur, 0);
+</script>
+</body>
+</html>
